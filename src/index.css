@@ -1,0 +1,292 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* AM Building Solutions Design System
+   Industrial, Professional, Safety-Oriented
+   Colors in HSL format
+*/
+
+@layer base {
+  :root {
+    /* Core Brand Colors */
+    --background: 210 20% 98%;
+    --foreground: 215 25% 12%;
+
+    /* Card & Surface */
+    --card: 0 0% 100%;
+    --card-foreground: 215 25% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 25% 12%;
+
+    /* Primary - Deep Navy (Trust, Professionalism) */
+    --primary: 215 50% 15%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Steel Gray */
+    --secondary: 215 15% 92%;
+    --secondary-foreground: 215 25% 20%;
+
+    /* Muted */
+    --muted: 215 15% 95%;
+    --muted-foreground: 215 15% 45%;
+
+    /* Accent - Safety Red (Industry Standard) */
+    --accent: 0 85% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Destructive */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Border & Input */
+    --border: 215 20% 88%;
+    --input: 215 20% 88%;
+    --ring: 0 85% 55%;
+
+    --radius: 0.5rem;
+
+    /* Sidebar */
+    --sidebar-background: 215 50% 12%;
+    --sidebar-foreground: 215 15% 92%;
+    --sidebar-primary: 0 85% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 40% 20%;
+    --sidebar-accent-foreground: 215 15% 92%;
+    --sidebar-border: 215 40% 25%;
+    --sidebar-ring: 0 85% 55%;
+
+    /* Custom Brand Extensions */
+    --navy: 215 50% 15%;
+    --navy-light: 215 40% 25%;
+    --navy-dark: 215 60% 8%;
+    
+    --steel: 215 10% 55%;
+    --steel-light: 215 15% 75%;
+    --steel-dark: 215 15% 35%;
+
+    --safety-orange: 0 85% 55%;
+    --safety-orange-light: 0 85% 65%;
+    --safety-orange-dark: 0 85% 45%;
+
+    --safety-yellow: 45 95% 55%;
+    --success: 145 65% 42%;
+    --warning: 45 95% 55%;
+
+    /* Gradients */
+    --gradient-hero: linear-gradient(135deg, hsl(215 50% 15%) 0%, hsl(215 60% 8%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(0 85% 55%) 0%, hsl(0 85% 45%) 100%);
+    --gradient-overlay: linear-gradient(180deg, hsla(215, 50%, 8%, 0.7) 0%, hsla(215, 50%, 8%, 0.4) 100%);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsla(215, 25%, 12%, 0.05);
+    --shadow-md: 0 4px 6px -1px hsla(215, 25%, 12%, 0.1), 0 2px 4px -2px hsla(215, 25%, 12%, 0.1);
+    --shadow-lg: 0 10px 15px -3px hsla(215, 25%, 12%, 0.1), 0 4px 6px -4px hsla(215, 25%, 12%, 0.1);
+    --shadow-xl: 0 20px 25px -5px hsla(215, 25%, 12%, 0.1), 0 8px 10px -6px hsla(215, 25%, 12%, 0.1);
+    --shadow-glow: 0 0 30px hsla(0, 85%, 55%, 0.3);
+  }
+
+  .dark {
+    --background: 215 50% 8%;
+    --foreground: 215 15% 92%;
+
+    --card: 215 45% 12%;
+    --card-foreground: 215 15% 92%;
+
+    --popover: 215 45% 12%;
+    --popover-foreground: 215 15% 92%;
+
+    --primary: 0 85% 55%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 215 40% 20%;
+    --secondary-foreground: 215 15% 92%;
+
+    --muted: 215 40% 18%;
+    --muted-foreground: 215 15% 65%;
+
+    --accent: 0 85% 55%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 215 40% 22%;
+    --input: 215 40% 22%;
+    --ring: 0 85% 55%;
+
+    --sidebar-background: 215 55% 6%;
+    --sidebar-foreground: 215 15% 92%;
+    --sidebar-primary: 0 85% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 40% 15%;
+    --sidebar-accent-foreground: 215 15% 92%;
+    --sidebar-border: 215 40% 18%;
+    --sidebar-ring: 0 85% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+  }
+}
+
+@layer components {
+  /* Hero Section Styles */
+  .hero-gradient {
+    background: var(--gradient-hero);
+  }
+
+  .hero-overlay {
+    background: var(--gradient-overlay);
+  }
+
+  /* Industrial Section Backgrounds */
+  .bg-navy {
+    background-color: hsl(var(--navy));
+  }
+
+  .bg-steel-pattern {
+    background-color: hsl(var(--secondary));
+    background-image: 
+      linear-gradient(90deg, hsla(215, 15%, 75%, 0.1) 1px, transparent 1px),
+      linear-gradient(hsla(215, 15%, 75%, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+  }
+
+  /* Safety Accent Elements */
+  .safety-stripe {
+    background: repeating-linear-gradient(
+      45deg,
+      hsl(var(--safety-orange)),
+      hsl(var(--safety-orange)) 10px,
+      hsl(var(--navy)) 10px,
+      hsl(var(--navy)) 20px
+    );
+  }
+
+  /* Glass Effect */
+  .glass {
+    background: hsla(0, 0%, 100%, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsla(215, 20%, 88%, 0.5);
+  }
+
+  .glass-dark {
+    background: hsla(215, 50%, 12%, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsla(215, 40%, 25%, 0.5);
+  }
+
+  /* Card Hover Effects */
+  .card-industrial {
+    @apply bg-card rounded-lg border border-border transition-all duration-300;
+    box-shadow: var(--shadow-md);
+  }
+
+  .card-industrial:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-4px);
+  }
+
+  /* Button Variants Base */
+  .btn-safety {
+    @apply inline-flex items-center justify-center rounded-md font-semibold transition-all duration-200;
+    background: var(--gradient-accent);
+    color: hsl(0 0% 100%);
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-safety:hover {
+    box-shadow: var(--shadow-glow);
+    transform: translateY(-2px);
+  }
+
+  /* Text Gradient */
+  .text-gradient {
+    background: var(--gradient-accent);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Container */
+  .container-wide {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Section Spacing */
+  .section-padding {
+    @apply py-16 md:py-24 lg:py-32;
+  }
+
+  /* Industrial Divider */
+  .divider-safety {
+    @apply h-1 w-20 rounded-full;
+    background: var(--gradient-accent);
+  }
+}
+
+@layer utilities {
+  /* Animation Utilities */
+  .animate-fade-up {
+    animation: fadeUp 0.6s ease-out forwards;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.5s ease-out forwards;
+  }
+
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* Delay utilities */
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
+}
