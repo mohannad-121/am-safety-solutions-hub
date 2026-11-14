@@ -7,19 +7,23 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { FileText, Send, CheckCircle, ArrowRight } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { SeoHead } from "@/components/SeoHead";
+import { submitWebsiteLead } from "@/lib/leads";
+import { LeadAttachments } from "@/components/forms/LeadAttachments";
 
 const productOptions = [
   "Edge Protection Systems",
   "Safety Net Systems",
-  "Fall Protection Equipment",
-  "Lifeline Systems",
-  "Anchor Points",
-  "Custom Safety Solution",
+  "Loading Platforms",
+  "Hoist Gate & Shaft Gate Protection",
+  "Crane Bearing and Tie-Beam",
+  "Training and Inspection",
 ];
 
 export default function QuotePage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [attachments, setAttachments] = useState<File[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -37,13 +41,16 @@ export default function QuotePage() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    toast({
-      title: "Quote Request Received!",
-      description: "Our team will contact you within 24-48 hours with a detailed quote.",
-    });
+    try {
+      await submitWebsiteLead({ lead_type: "quote", name: formData.name, email: formData.email, company: formData.company || null, phone: formData.phone || null, subject: `Quotation request - ${formData.company || formData.name}`, message: formData.description || null, products: formData.products, project_type: formData.projectType || null, project_location: formData.projectLocation || null, timeline: formData.timeline || null, budget: formData.budget || null, source_path: "/quote" }, attachments);
+      toast({ title: "Quotation request received", description: "Thank you. Your project information has been recorded for technical review." });
+      setAttachments([]);
+    } catch {
+      const subject = encodeURIComponent(`Quotation request - ${formData.company || formData.name}`);
+      const body = encodeURIComponent(`Name: ${formData.name}\nCompany: ${formData.company}\nEmail: ${formData.email}\nPhone: ${formData.phone}\nProducts: ${formData.products.join(", ")}\nProject type: ${formData.projectType}\nLocation: ${formData.projectLocation}\nTimeline: ${formData.timeline}\nBudget: ${formData.budget}\n\n${formData.description}`);
+      window.location.href = `mailto:malheeh@ambs.ae?subject=${subject}&body=${body}`;
+      toast({ title: "Email draft opened", description: attachments.length ? "Please attach your selected project files to the email draft before sending." : "The secure form service was unavailable, so an email draft was opened as a fallback." });
+    }
     
     setFormData({
       name: "",
@@ -79,6 +86,7 @@ export default function QuotePage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+      <SeoHead title="Request a Construction Safety Systems Quote UAE" description="Request a quote for safety nets, edge protection, mesh barriers, loading platforms, hoist gates, shaft protection, temporary works and custom steel fabrication in UAE and GCC." path="/quote" />
       <main className="flex-1">
         {/* Hero */}
         <section className="bg-navy text-primary-foreground py-20">
@@ -135,20 +143,20 @@ export default function QuotePage() {
                     </h2>
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Full Name *</label>
-                        <Input name="name" value={formData.name} onChange={handleChange} placeholder="John Smith" required />
+                        <label htmlFor="quote-name" className="block text-sm font-medium text-foreground mb-2">Full Name *</label>
+                        <Input id="quote-name" name="name" value={formData.name} onChange={handleChange} placeholder="John Smith" required />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Email Address *</label>
-                        <Input name="email" type="email" value={formData.email} onChange={handleChange} placeholder="john@company.com" required />
+                        <label htmlFor="quote-email" className="block text-sm font-medium text-foreground mb-2">Email Address *</label>
+                        <Input id="quote-email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="john@company.com" required />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Company Name *</label>
-                        <Input name="company" value={formData.company} onChange={handleChange} placeholder="Your Company Ltd." required />
+                        <label htmlFor="quote-company" className="block text-sm font-medium text-foreground mb-2">Company Name *</label>
+                        <Input id="quote-company" name="company" value={formData.company} onChange={handleChange} placeholder="Your Company Ltd." required />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Phone Number *</label>
-                        <Input name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="+1 (234) 567-890" required />
+                        <label htmlFor="quote-phone" className="block text-sm font-medium text-foreground mb-2">Phone Number *</label>
+                        <Input id="quote-phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} placeholder="+971 ..." required />
                       </div>
                     </div>
                   </div>
@@ -186,12 +194,13 @@ export default function QuotePage() {
                     </h2>
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Project Type</label>
+                        <label htmlFor="project-type" className="block text-sm font-medium text-foreground mb-2">Project Type</label>
                         <select
+                          id="project-type"
                           name="projectType"
                           value={formData.projectType}
                           onChange={handleChange}
-                          className="w-full h-10 px-3 rounded-md border border-input bg-background text-foreground"
+                          className="h-11 w-full rounded-md border border-input bg-background px-3 text-foreground"
                         >
                           <option value="">Select project type</option>
                           <option value="commercial">Commercial Construction</option>
@@ -203,16 +212,17 @@ export default function QuotePage() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Project Location</label>
-                        <Input name="projectLocation" value={formData.projectLocation} onChange={handleChange} placeholder="City, Country" />
+                        <label htmlFor="project-location" className="block text-sm font-medium text-foreground mb-2">Project Location</label>
+                        <Input id="project-location" name="projectLocation" value={formData.projectLocation} onChange={handleChange} placeholder="City, Country" />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Project Timeline</label>
+                        <label htmlFor="project-timeline" className="block text-sm font-medium text-foreground mb-2">Project Timeline</label>
                         <select
+                          id="project-timeline"
                           name="timeline"
                           value={formData.timeline}
                           onChange={handleChange}
-                          className="w-full h-10 px-3 rounded-md border border-input bg-background text-foreground"
+                          className="h-11 w-full rounded-md border border-input bg-background px-3 text-foreground"
                         >
                           <option value="">Select timeline</option>
                           <option value="immediate">Immediate (within 2 weeks)</option>
@@ -223,25 +233,27 @@ export default function QuotePage() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">Estimated Budget</label>
+                        <label htmlFor="project-budget" className="block text-sm font-medium text-foreground mb-2">Estimated Budget</label>
                         <select
+                          id="project-budget"
                           name="budget"
                           value={formData.budget}
                           onChange={handleChange}
-                          className="w-full h-10 px-3 rounded-md border border-input bg-background text-foreground"
+                          className="h-11 w-full rounded-md border border-input bg-background px-3 text-foreground"
                         >
                           <option value="">Select budget range</option>
-                          <option value="under10k">Under $10,000</option>
-                          <option value="10k-50k">$10,000 - $50,000</option>
-                          <option value="50k-100k">$50,000 - $100,000</option>
-                          <option value="100k-500k">$100,000 - $500,000</option>
-                          <option value="over500k">Over $500,000</option>
+                          <option value="under25k">Under AED 25,000</option>
+                          <option value="25k-100k">AED 25,000 - 100,000</option>
+                          <option value="100k-250k">AED 100,000 - 250,000</option>
+                          <option value="250k-1m">AED 250,000 - 1,000,000</option>
+                          <option value="over1m">Over AED 1,000,000</option>
                         </select>
                       </div>
                     </div>
                     <div className="mt-6">
-                      <label className="block text-sm font-medium text-foreground mb-2">Project Description</label>
+                      <label htmlFor="project-description" className="block text-sm font-medium text-foreground mb-2">Project Description</label>
                       <Textarea
+                        id="project-description"
                         name="description"
                         value={formData.description}
                         onChange={handleChange}
@@ -251,11 +263,13 @@ export default function QuotePage() {
                     </div>
                   </div>
 
+                  <LeadAttachments files={attachments} onChange={setAttachments} />
+
                   {/* Submit */}
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-border">
                     <p className="text-sm text-muted-foreground">
                       <FileText className="inline h-4 w-4 mr-1" />
-                      You'll receive a detailed quote within 24-48 hours
+                      The team will review your technical information before confirming scope and timing.
                     </p>
                     <Button type="submit" variant="hero" size="lg" disabled={isSubmitting}>
                       {isSubmitting ? "Submitting..." : (

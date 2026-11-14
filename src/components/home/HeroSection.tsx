@@ -1,138 +1,18 @@
-import { motion } from "framer-motion";
-import { useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Shield, Award, ArrowRight, Play } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import heroVideo from "@/assets/hero-edge-protection.mp4";
+import { ArrowRight, FileUp, ShieldCheck } from "lucide-react";
+import { ManagedBackgroundVideo } from "@/components/video/ManagedBackgroundVideo";
+import { useCmsImages } from "@/hooks/use-cms";
 
 export function HeroSection() {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.playbackRate = 0.7;
-    }
-  }, []);
-
-  return (
-    <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-navy">
-      {/* Content Container - Split Layout */}
-      <div className="container-wide relative z-10 py-20">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Left Side - Text Content */}
-          <div className="order-2 lg:order-1">
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/20 border border-accent/30 text-accent mb-8"
-          >
-            <Shield className="h-4 w-4" />
-            <span className="text-sm font-medium">EN 13374 Certified Systems</span>
-          </motion.div>
-
-          {/* Heading */}
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground leading-tight mb-6"
-          >
-            Building Safety
-            <span className="block text-accent">Without Compromise</span>
-          </motion.h1>
-
-          {/* Description */}
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl"
-          >
-            AM Building Solutions provides industry-leading edge protection, safety nets, 
-            and fall prevention systems. Trusted by construction companies worldwide 
-            for uncompromising worker safety.
-          </motion.p>
-
-          {/* CTA Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-wrap gap-4 mb-12"
-          >
-            <Button variant="hero" size="xl" asChild>
-              <Link to="/quote">
-                Request a Quote
-                <ArrowRight className="h-5 w-5" />
-              </Link>
-            </Button>
-            <Button variant="heroOutline" size="xl" asChild>
-              <Link to="/products">
-                <Play className="h-5 w-5" />
-                View Our Systems
-              </Link>
-            </Button>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-6"
-          >
-            {[
-              { value: "25+", label: "Years Experience" },
-              { value: "5000+", label: "Projects Completed" },
-              { value: "100%", label: "Safety Record" },
-              { value: "50+", label: "Countries Served" },
-            ].map((stat, index) => (
-              <div key={index} className="text-center md:text-left">
-                <div className="text-3xl md:text-4xl font-bold text-accent">{stat.value}</div>
-                <div className="text-sm text-primary-foreground/70">{stat.label}</div>
-              </div>
-            ))}
-          </motion.div>
-          </div>
-
-          {/* Right Side - Video */}
-          <div className="order-1 lg:order-2">
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              className="relative rounded-2xl overflow-hidden shadow-2xl"
-            >
-              <video
-                ref={videoRef}
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="w-full h-[400px] lg:h-[600px] object-cover"
-              >
-                <source src={heroVideo} type="video/mp4" />
-              </video>
-              <div className="absolute inset-0 bg-gradient-to-tr from-navy/30 to-transparent" />
-              
-              {/* Certification Badges on Video */}
-              <div className="absolute bottom-6 right-6 flex flex-col gap-3">
-                {["EN 13374", "ISO 9001", "EN 1263-1"].map((cert, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-2 px-4 py-3 rounded-lg glass-dark backdrop-blur-md"
-                  >
-                    <Award className="h-5 w-5 text-accent" />
-                    <span className="text-sm font-medium text-primary-foreground">{cert}</span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        </div>
+  const { image } = useCmsImages();
+  const badges = ["EN 1263 Safety Net Systems", "EN 13374 Edge Protection Systems", "UAE & GCC Delivery", "Consultant-Ready Submittals", "Engineering Support"];
+  return <ManagedBackgroundVideo id="landingHeroVideo" className="hero-video-section landing-video-frame premium-video-frame" videoClassName="hero-bg-video" poster={image("/assets/images/landing-hero-poster.jpg")} webmSrc="/assets/videos/landing-hero-video.webm" mp4Src="/assets/videos/landing-hero-video.mp4" mobileMp4Src="/assets/videos/landing-hero-video-mobile.mp4" buttonClassName="landing-sound-btn" loop>
+    <div className="container-wide relative z-10 py-24 md:py-32 lg:py-36">
+      <div className="max-w-5xl"><p className="eyebrow text-[#F9A900]">AM Building Solutions | Dubai, UAE</p><h1 className="hero-title mt-5">Engineered Safety Systems for Safer UAE Construction Sites</h1><p className="mt-6 max-w-4xl text-lg leading-8 text-white/90 md:text-xl">AM Building Solutions supplies and supports Safety Nets, Edge Protection Systems, Mesh Barriers, Loading Platforms, Crash Decking, Shaft Protection Gates, Hoist Gates, and engineered temporary works solutions for construction projects across the UAE and GCC.</p>
+        <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap"><Link to="/quote" className="ambs-button min-h-12">Request a Quote <ArrowRight size={18} /></Link><Link to="/products" className="ambs-button-yellow min-h-12">Explore Products & Solutions</Link><Link to="/quote?type=drawings" className="hero-secondary-button min-h-12"><FileUp size={18} /> Send Drawings for Review</Link></div>
+        <div className="mt-10 flex flex-wrap gap-2">{badges.map((badge) => <span key={badge} className="hero-badge"><ShieldCheck size={16} />{badge}</span>)}</div>
       </div>
-    </section>
-  );
+    </div>
+    <a href="#solutions" className="absolute bottom-5 left-1/2 z-10 -translate-x-1/2 text-xs font-bold uppercase text-white/70 hover:text-white">Explore systems</a>
+  </ManagedBackgroundVideo>;
 }

@@ -5,10 +5,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Lock, Mail } from "lucide-react";
+import { AdminSeo } from "@/components/admin/AdminSeo";
 
-// DEV MODE - Set to false for production
-const DEV_MODE = true;
-const DEV_PASSWORD = "admin123";
+const DEV_MODE = import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEV_ADMIN === "true";
+const DEV_PASSWORD = import.meta.env.VITE_DEV_ADMIN_PASSWORD || "";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
@@ -68,7 +68,7 @@ export default function AdminLogin() {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-navy via-navy to-navy/90 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-navy via-navy to-navy/90 px-4"><AdminSeo title="AMBS Admin Login" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -97,7 +97,7 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-navy via-navy to-navy/90 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-navy via-navy to-navy/90 px-4"><AdminSeo title="AMBS Admin Login" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -122,7 +122,7 @@ export default function AdminLogin() {
 
           {DEV_MODE && !useMagicLink && (
             <div className="p-3 rounded-lg bg-yellow-500/20 border border-yellow-500/50 text-yellow-400 text-xs">
-              💡 Dev Mode: Password is <strong>admin123</strong>
+              Local development access is enabled through environment variables.
             </div>
           )}
 
@@ -134,7 +134,7 @@ export default function AdminLogin() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="mabuayyash33@gmail.com"
+                placeholder="admin@ambs.ae"
                 className="pl-10 bg-navy/50 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50"
                 required
               />
@@ -150,7 +150,7 @@ export default function AdminLogin() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                   className="pl-10 bg-navy/50 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50"
                   required
                 />

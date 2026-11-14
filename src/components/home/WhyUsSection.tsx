@@ -4,8 +4,8 @@ import { Clock, Users, Wrench, HeartHandshake, TrendingUp, Globe2 } from "lucide
 const reasons = [
   {
     icon: Clock,
-    title: "25+ Years Experience",
-    description: "Decades of expertise in construction safety systems across diverse projects and industries.",
+    title: "11+ Years Experience",
+    description: "Practical experience supporting construction safety systems across diverse projects and industries.",
   },
   {
     icon: Users,
@@ -105,7 +105,7 @@ export function WhyUsSection() {
         >
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { value: "5000+", label: "Projects Delivered" },
+              { value: "1000+", label: "Projects Supported" },
               { value: "100%", label: "Safety Record" },
               { value: "24/7", label: "Support Available" },
               { value: "50+", label: "Countries" },

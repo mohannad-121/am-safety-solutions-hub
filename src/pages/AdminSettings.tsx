@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Save } from "lucide-react";
 
-const DEV_MODE = true;
+const DEV_MODE = import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEV_ADMIN === "true";
 
 export default function AdminSettings() {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ export default function AdminSettings() {
     about: "AM Building Solutions provides industry-leading edge protection, safety nets, and fall prevention systems.",
   });
   const [saved, setSaved] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id?: string; email?: string } | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
