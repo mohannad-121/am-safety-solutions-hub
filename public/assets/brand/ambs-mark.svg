@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="AMBS">
+  <rect width="180" height="180" rx="24" fill="#fff"/>
+  <path fill="#ff8a00" d="M17 20h13v92l64 29v12H17zM17 149h146v13H17z"/>
+  <path fill="#ed0805" d="M55 20h35l48 112h-29l-11-25H49l-11 25H10zm18 31-15 33h30zM113 20h25l20 34 20-34h25v112h-23V67l-22 35-22-35v65h-23z"/>
+</svg>

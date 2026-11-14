@@ -7,10 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { SeoHead } from "@/components/SeoHead";
+import { submitWebsiteLead } from "@/lib/leads";
+import { LeadAttachments } from "@/components/forms/LeadAttachments";
+import { company, phoneUrl } from "@/config/company";
 
 export default function ContactPage() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [attachments, setAttachments] = useState<File[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,13 +29,16 @@ export default function ContactPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    toast({
-      title: "Message Received!",
-      description: "Thank you for contacting us. We'll get back to you within 24 hours.",
-    });
+    try {
+      await submitWebsiteLead({ lead_type: "contact", name: formData.name, email: formData.email, company: formData.company || null, phone: formData.phone || null, subject: formData.subject || null, message: formData.message, source_path: "/contact" }, attachments);
+      toast({ title: "Enquiry received", description: "Thank you. Your project enquiry has been recorded for review." });
+      setAttachments([]);
+    } catch {
+      const subject = encodeURIComponent(formData.subject);
+      const body = encodeURIComponent(`Name: ${formData.name}\nCompany: ${formData.company}\nEmail: ${formData.email}\nPhone: ${formData.phone}\n\n${formData.message}`);
+      window.location.href = `mailto:malheeh@ambs.ae?subject=${subject}&body=${body}`;
+      toast({ title: "Email draft opened", description: attachments.length ? "Please attach your selected project files to the email draft before sending." : "The secure form service was unavailable, so an email draft was opened as a fallback." });
+    }
 
     setFormData({
       name: "",
@@ -53,6 +61,7 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+      <SeoHead title="Contact AM Building Solutions Dubai UAE" description="Contact AM Building Solutions for safety nets, edge protection, mesh barriers, loading platforms, temporary works engineering, inspection, training and custom steel solutions in UAE and GCC." path="/contact" />
       <main className="flex-1">
         {/* Hero */}
         <section className="bg-navy text-primary-foreground py-20">
@@ -90,8 +99,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Phone</h3>
-                      <p className="text-muted-foreground">+1 (234) 567-890</p>
-                      <p className="text-muted-foreground">+1 (234) 567-891</p>
+                      {company.phoneNumber ? <a href={phoneUrl()} className="text-muted-foreground hover:text-accent">{company.phoneNumber}</a> : <p className="text-muted-foreground">Dubai, UAE project support</p>}
                     </div>
                   </div>
 
@@ -101,7 +109,7 @@ export default function ContactPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Email</h3>
-                      <p className="text-muted-foreground">mabuayyash33@gmail.com</p>
+                      <a href={`mailto:${company.email}`} className="text-muted-foreground hover:text-accent">{company.email}</a>
                     </div>
                   </div>
 
@@ -112,9 +120,8 @@ export default function ContactPage() {
                     <div>
                       <h3 className="font-semibold text-foreground mb-1">Address</h3>
                       <p className="text-muted-foreground">
-                        123 Safety Boulevard<br />
-                        Construction City, CC 12345<br />
-                        United States
+                        AM Building Solutions DWC LLC<br />
+                        Dubai, United Arab Emirates
                       </p>
                     </div>
                   </div>
@@ -124,9 +131,8 @@ export default function ContactPage() {
                       <Clock className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-foreground mb-1">Business Hours</h3>
-                      <p className="text-muted-foreground">Monday - Friday: 8:00 AM - 6:00 PM</p>
-                      <p className="text-muted-foreground">Saturday: 9:00 AM - 1:00 PM</p>
+                      <h3 className="font-semibold text-foreground mb-1">Project Enquiries</h3>
+                      <p className="text-muted-foreground">Coordinated from Dubai for UAE and GCC projects.</p>
                     </div>
                   </div>
                 </div>
@@ -138,7 +144,7 @@ export default function ContactPage() {
                     <span className="font-semibold">Quick Response</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    We typically respond to inquiries within 24 hours during business days.
+                    Include drawings, quantities, project location and required date so the team can route your enquiry correctly.
                   </p>
                 </div>
               </div>
@@ -202,7 +208,7 @@ export default function ContactPage() {
                           type="tel"
                           value={formData.phone}
                           onChange={handleChange}
-                          placeholder="+1 (234) 567-890"
+                          placeholder="+971 ..."
                         />
                       </div>
                     </div>
@@ -235,6 +241,8 @@ export default function ContactPage() {
                         required
                       />
                     </div>
+
+                    <LeadAttachments files={attachments} onChange={setAttachments} />
 
                     <Button
                       type="submit"

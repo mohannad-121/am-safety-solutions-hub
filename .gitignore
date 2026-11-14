@@ -11,6 +11,13 @@ node_modules
 dist
 dist-ssr
 *.local
+.env
+!.env.example
+.recovery-temp/
+.video-source/
+qa-artifacts/
+*.tsbuildinfo
+supabase/.temp/
 
 # Editor directories and files
 .vscode/*

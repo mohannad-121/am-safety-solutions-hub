@@ -1,4 +1,19 @@
-# AM Safety Solutions - Deployment Guide
+# AM Building Solutions - Deployment Guide
+
+## Launch configuration
+
+Set these Vercel environment variables before deployment:
+
+```text
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
+VITE_WHATSAPP_NUMBER=971558556746
+VITE_PHONE_NUMBER=+971 55 855 6746
+```
+
+Deploy the Supabase migrations and the `notify-lead` Edge Function. Configure Resend notification secrets as documented in `docs/lead-notifications.md`.
+
+Run `npm run launch:check` before deploying. Vercel uses `vercel.json` for SPA routing, asset caching and baseline security headers.
 
 ## ✅ Completed Setup
 - [x] Git repository initialized

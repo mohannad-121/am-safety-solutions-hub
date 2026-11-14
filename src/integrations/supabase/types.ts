@@ -14,7 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      website_leads: {
+        Row: {
+          id: string
+          created_at: string
+          lead_type: "contact" | "quote" | "inspection" | "training" | "document"
+          name: string
+          email: string
+          company: string | null
+          phone: string | null
+          subject: string | null
+          message: string | null
+          products: string[]
+          project_type: string | null
+          project_location: string | null
+          timeline: string | null
+          budget: string | null
+          attachment_paths: string[]
+          source_path: string | null
+          status: "new" | "reviewing" | "qualified" | "closed"
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          lead_type: "contact" | "quote" | "inspection" | "training" | "document"
+          name: string
+          email: string
+          company?: string | null
+          phone?: string | null
+          subject?: string | null
+          message?: string | null
+          products?: string[]
+          project_type?: string | null
+          project_location?: string | null
+          timeline?: string | null
+          budget?: string | null
+          attachment_paths?: string[]
+          source_path?: string | null
+          status?: "new" | "reviewing" | "qualified" | "closed"
+        }
+        Update: {
+          status?: "new" | "reviewing" | "qualified" | "closed"
+          subject?: string | null
+          message?: string | null
+          attachment_paths?: string[]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

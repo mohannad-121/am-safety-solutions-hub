@@ -1,154 +1,19 @@
 import { Link } from "react-router-dom";
-import { Phone, Mail, MapPin, Linkedin, Facebook, Youtube } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
+import { company, phoneUrl, whatsappUrl } from "@/config/company";
+import { WhatsAppIcon } from "@/components/WhatsAppIcon";
+import { useCmsImages } from "@/hooks/use-cms";
 
-const footerLinks = {
-  products: [
-    { name: "Safety Net Systems", href: "/products/safety-nets" },
-    { name: "Fall Protection", href: "/products/fall-protection" },
-    { name: "Edge Protection", href: "/products/edge-protection" },
-    { name: "Lifelines", href: "/products/lifelines" },
-    { name: "Temporary Solutions", href: "/products/temporary-permanent" },
-  ],
-  company: [
-    { name: "About Us", href: "/about" },
-    { name: "Industries", href: "/industries" },
-    { name: "Projects", href: "/projects" },
-    { name: "Certifications", href: "/certifications" },
-    { name: "Blog", href: "/blog" },
-  ],
-  resources: [
-    { name: "Technical Documentation", href: "/documentation" },
-    { name: "Safety Standards", href: "/standards" },
-    { name: "Media Gallery", href: "/gallery" },
-    { name: "FAQs", href: "/faq" },
-    { name: "Request Quote", href: "/quote" },
-  ],
-};
+const groups = [
+  { title: "Products", links: [["Safety Net Systems", "/products/safety-nets"], ["Edge Protection", "/edge-protection-systems-uae"], ["Loading Platforms", "/products/loading-platforms"], ["Shaft & Hoist Gates", "/high-risk-products"], ["Steel Fabrication", "/steel-fabrication"]] },
+  { title: "Technical", links: [["BS EN 13374:2025", "/standards/en-13374-edge-protection"], ["Articles & Guides", "/articles"], ["Technical Downloads", "/edge-protection-downloads"], ["Training Center", "/edge-protection-training"], ["Engineering Support", "/engineering-solutions"]] },
+  { title: "Company", links: [["About Us", "/about"], ["Projects", "/projects"], ["FAQ", "/faq"], ["Request a Quote", "/quote"], ["Contact", "/contact"], ["Privacy Policy", "/privacy"], ["Terms of Use", "/terms"]] },
+];
 
 export function Footer() {
-  return (
-    <footer className="bg-navy text-primary-foreground">
-      {/* Main Footer */}
-      <div className="container-wide py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
-          {/* Company Info */}
-          <div className="lg:col-span-2">
-            <Link to="/" className="flex items-center gap-3 mb-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
-                <span className="text-xl font-bold text-accent-foreground">AM</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="text-lg font-bold leading-tight">AM Building</span>
-                <span className="text-sm font-medium text-accent leading-tight">Solutions</span>
-              </div>
-            </Link>
-            <p className="text-primary-foreground/70 mb-6 max-w-sm">
-              Leading provider of construction safety systems. Protecting workers with 
-              EN 13374 certified edge protection, safety nets, and fall prevention solutions.
-            </p>
-            <div className="space-y-3">
-              <a href="tel:+1234567890" className="flex items-center gap-3 text-primary-foreground/70 hover:text-accent transition-colors">
-                <Phone className="h-5 w-5" />
-                <span>+1 (234) 567-890</span>
-              </a>
-              <a href="mailto:info@ambuildingsolutions.com" className="flex items-center gap-3 text-primary-foreground/70 hover:text-accent transition-colors">
-                <Mail className="h-5 w-5" />
-                <span>info@ambuildingsolutions.com</span>
-              </a>
-              <div className="flex items-start gap-3 text-primary-foreground/70">
-                <MapPin className="h-5 w-5 mt-0.5" />
-                <span>123 Safety Boulevard<br />Construction City, CC 12345</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Products */}
-          <div>
-            <h4 className="font-bold mb-4 text-accent">Products</h4>
-            <ul className="space-y-2">
-              {footerLinks.products.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-primary-foreground/70 hover:text-accent transition-colors text-sm"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Company */}
-          <div>
-            <h4 className="font-bold mb-4 text-accent">Company</h4>
-            <ul className="space-y-2">
-              {footerLinks.company.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-primary-foreground/70 hover:text-accent transition-colors text-sm"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <h4 className="font-bold mb-4 text-accent">Resources</h4>
-            <ul className="space-y-2">
-              {footerLinks.resources.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.href}
-                    className="text-primary-foreground/70 hover:text-accent transition-colors text-sm"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {/* Certifications */}
-        <div className="mt-12 pt-8 border-t border-primary-foreground/10">
-          <div className="flex flex-wrap items-center gap-6 text-sm text-primary-foreground/60">
-            <span className="font-medium">Certifications:</span>
-            <span className="px-3 py-1 border border-primary-foreground/20 rounded">EN 13374</span>
-            <span className="px-3 py-1 border border-primary-foreground/20 rounded">ISO 9001:2015</span>
-            <span className="px-3 py-1 border border-primary-foreground/20 rounded">EN 1263-1</span>
-            <span className="px-3 py-1 border border-primary-foreground/20 rounded">EN 795</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Bar */}
-      <div className="border-t border-primary-foreground/10">
-        <div className="container-wide py-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-primary-foreground/60">
-            © {new Date().getFullYear()} AM Building Solutions. All rights reserved.
-          </p>
-          <div className="flex items-center gap-4">
-            <a href="#" className="text-primary-foreground/60 hover:text-accent transition-colors">
-              <Linkedin className="h-5 w-5" />
-            </a>
-            <a href="#" className="text-primary-foreground/60 hover:text-accent transition-colors">
-              <Facebook className="h-5 w-5" />
-            </a>
-            <a href="#" className="text-primary-foreground/60 hover:text-accent transition-colors">
-              <Youtube className="h-5 w-5" />
-            </a>
-          </div>
-          <div className="flex items-center gap-6 text-sm text-primary-foreground/60">
-            <Link to="/privacy" className="hover:text-accent transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-accent transition-colors">Terms of Service</Link>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
+  const { image } = useCmsImages();
+  return <footer className="bg-[#151a1f] pb-16 text-white md:pb-16"><div className="h-1 bg-gradient-to-r from-[#C51A14] via-[#F9A900] to-[#C51A14]" /><div className="container-wide grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-5">
+    <div className="lg:col-span-2"><Link to="/" className="inline-flex rounded-sm bg-white p-2"><img src={image("/assets/brand/ambs-logo.svg")} alt="AM Building Solutions" width="184" height="69" className="h-14 w-auto" loading="lazy" /></Link><p className="mt-4 max-w-md leading-7 text-white/65">UAE-based temporary works, construction safety systems and engineered steel solutions for contractors, consultants, HSE teams and procurement departments across the UAE and GCC.</p><div className="mt-6 space-y-3 text-sm text-white/75"><a href={`mailto:${company.email}`} className="flex items-center gap-2 hover:text-white"><Mail size={16} /> {company.email}</a>{company.phoneNumber && <a href={phoneUrl()} className="flex items-center gap-2 hover:text-white"><Phone size={16} /> {company.phoneNumber}</a>}<p className="flex items-center gap-2"><MapPin size={16} /> Dubai, United Arab Emirates</p><a href={whatsappUrl("Hello AM Building Solutions, I would like to discuss a project requirement.")} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-[#48dc7b]"><WhatsAppIcon className="h-5 w-5" /> WhatsApp project enquiry</a></div></div>
+    {groups.map((group) => <div key={group.title}><h2 className="font-display text-lg font-bold uppercase">{group.title}</h2><ul className="mt-5 space-y-3">{group.links.map(([label, path]) => <li key={path}><Link className="text-sm text-white/65 hover:text-[#F9A900]" to={path}>{label}</Link></li>)}</ul></div>)}
+  </div><div className="border-t border-white/10"><div className="container-wide flex flex-col justify-between gap-3 py-5 text-xs text-white/45 sm:flex-row"><span>Copyright {new Date().getFullYear()} AM Building Solutions DWC LLC. All rights reserved.</span><span>Dubai, UAE | UAE & GCC project support</span></div></div></footer>;
 }

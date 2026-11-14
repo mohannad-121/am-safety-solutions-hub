@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Plus, Trash2, Edit2 } from "lucide-react";
 
-const DEV_MODE = true;
+const DEV_MODE = import.meta.env.DEV && import.meta.env.VITE_ENABLE_DEV_ADMIN === "true";
 
 interface Product {
   id: string;
@@ -46,7 +46,7 @@ export default function AdminProducts() {
     },
   ]);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ email?: string } | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -101,7 +101,6 @@ export default function AdminProducts() {
   const handleSave = () => {
     setEditingId(null);
     localStorage.setItem("admin_products", JSON.stringify(products));
-  };
   };
 
   return (
