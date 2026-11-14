@@ -5,6 +5,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { edgeTopics } from "./data/ambs";
 import { StickyConversionBar } from "@/components/StickyConversionBar";
 import { CmsImageBridge } from "@/components/CmsImageBridge";
+import { CmsContentBridge } from "@/components/CmsContentBridge";
 
 const Index = lazy(() => import("./pages/Index"));
 const About = lazy(() => import("./pages/About"));
@@ -26,12 +27,15 @@ const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Faq = lazy(() => import("./pages/Faq"));
 const EdgeProtectionTypes = lazy(() => import("./pages/EdgeProtectionTypes"));
+const TechnicalSeoLanding = lazy(() => import("./pages/TechnicalSeoLanding"));
+const RamsResources = lazy(() => import("./pages/RamsResources"));
 
 const App = () => (
   <>
       <Toaster />
       <BrowserRouter>
         <CmsImageBridge />
+        <CmsContentBridge />
         <ScrollToTop />
         <Suspense fallback={<div className="flex min-h-[50vh] items-center justify-center bg-[#20262b] text-sm font-bold uppercase text-white">Loading AM Building Solutions...</div>}><Routes>
           <Route path="/" element={<Index />} />
@@ -44,6 +48,20 @@ const App = () => (
           <Route path="/steel-fabrication" element={<CapabilityPage />} />
           <Route path="/edge-protection-systems-uae" element={<EdgeProtection />} />
           <Route path="/edge-protection-systems/types-of-edge-protection-systems" element={<EdgeProtectionTypes />} />
+          <Route path="/safety-net-uae" element={<TechnicalSeoLanding />} />
+          <Route path="/safety-catch-net-dubai" element={<TechnicalSeoLanding />} />
+          <Route path="/temporary-edge-protection-dubai" element={<TechnicalSeoLanding />} />
+          <Route path="/vertical-safety-net" element={<TechnicalSeoLanding />} />
+          <Route path="/loading-platforms-uae" element={<TechnicalSeoLanding />} />
+          <Route path="/work-at-height-safety-uae" element={<TechnicalSeoLanding />} />
+          <Route path="/temporary-works-safety-solutions-uae" element={<TechnicalSeoLanding />} />
+          <Route path="/what-is-en-1263-safety-net" element={<TechnicalSeoLanding />} />
+          <Route path="/what-is-en-13374-edge-protection" element={<TechnicalSeoLanding />} />
+          <Route path="/resources/risk-assessment-method-statement" element={<RamsResources />} />
+          <Route path="/resources/safety-net-risk-assessment-method-statement" element={<RamsResources />} />
+          <Route path="/resources/edge-protection-risk-assessment-method-statement" element={<RamsResources />} />
+          <Route path="/resources/loading-platform-risk-assessment-method-statement" element={<RamsResources />} />
+          <Route path="/resources/how-to-make-method-statement" element={<RamsResources />} />
           <Route path="/standards" element={<StandardEN13374 />} />
           <Route path="/standards/en-13374-edge-protection" element={<StandardEN13374 />} />
           <Route path="/en-13374-edge-protection" element={<StandardEN13374 />} />

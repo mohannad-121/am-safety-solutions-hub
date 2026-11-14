@@ -9,6 +9,7 @@ const homeSchema = {
   "@context": "https://schema.org",
   "@graph": [
     { "@type": "Organization", "name": "AM Building Solutions DWC LLC", "alternateName": "AMBS", "url": "https://www.ambs.ae", "email": "malheeh@ambs.ae", "address": { "@type": "PostalAddress", "addressLocality": "Dubai", "addressCountry": "AE" } },
+    { "@type": "LocalBusiness", "name": "AM Building Solutions DWC LLC", "alternateName": "AMBS", "url": "https://www.ambs.ae", "image": "https://www.ambs.ae/assets/brand/ambs-logo.svg", "email": "malheeh@ambs.ae", "telephone": "+971 55 855 6746", "address": { "@type": "PostalAddress", "addressLocality": "Dubai", "addressCountry": "AE" }, "areaServed": ["Dubai", "Abu Dhabi", "Sharjah", "United Arab Emirates", "GCC"] },
     { "@type": "WebSite", "name": "AM Building Solutions", "url": "https://www.ambs.ae", "potentialAction": { "@type": "SearchAction", "target": "https://www.ambs.ae/products?search={search_term_string}", "query-input": "required name=search_term_string" } }
   ]
 };

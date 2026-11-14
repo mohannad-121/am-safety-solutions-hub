@@ -1,4 +1,4 @@
-import { useEffect, useState, type MouseEvent } from "react";
+﻿import { useEffect, useState, type MouseEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, CheckCircle2, ClipboardCheck, Factory, FileText, GraduationCap, HardHat, PackageCheck, Ruler, ShieldCheck, Truck, Wrench } from "lucide-react";
@@ -118,3 +118,5 @@ export function HomeFeatureSections() {
     <section className="bg-[#C51A14] py-14 text-white"><div className="container-wide flex flex-col items-start justify-between gap-7 lg:flex-row lg:items-center"><div><h2 className="font-display text-4xl font-extrabold uppercase md:text-5xl">Need a consultant-ready safety or temporary works solution?</h2><p className="mt-3 max-w-3xl text-white/80">Send drawings, site photos, quantities, project location and required delivery date. AMBS will review the requirement and propose the next technical step.</p></div><div className="flex shrink-0 flex-col gap-3 sm:flex-row lg:flex-col"><Link to="/quote" className="ambs-button-yellow">Request a Quote</Link><Link to="/quote?type=drawings" className="hero-secondary-button">Send Project Drawings</Link><a href={whatsappUrl("Hello AM Building Solutions, I need a consultant-ready safety or temporary works solution. Project: ____. Location: ____. Required date: ____. ")} target="_blank" rel="noreferrer" className="hero-secondary-button"><WhatsAppIcon className="h-5 w-5" /> WhatsApp Our Engineer</a></div></div></section>
   </>;
 }
+
+

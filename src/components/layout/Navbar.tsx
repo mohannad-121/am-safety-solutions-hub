@@ -25,10 +25,13 @@ const navigation: NavItem[] = [
     { name: "Engineering & Submittals", href: "/engineering-solutions", description: "Technical coordination, drawings and submittal support.", badge: "Engineering", icon: Wrench },
     { name: "Inspection Support", href: "/edge-protection-inspection", description: "Inspection guidance, checklists and handover support.", badge: "Inspection", icon: ClipboardCheck },
     { name: "Training Center", href: "/edge-protection-training", description: "Installation and inspection learning for site teams.", badge: "Training", icon: BookOpen },
+    { name: "Work at Height Safety", href: "/work-at-height-safety-uae", description: "Collective fall prevention, arrest and inspection guidance.", badge: "UAE", icon: ShieldCheck },
+    { name: "Temporary Works Safety", href: "/temporary-works-safety-solutions-uae", description: "Integrated systems, interfaces and technical controls.", badge: "Temporary works", icon: Wrench },
   ] },
   { name: "Projects", href: "/projects" },
   { name: "Resources", href: "/articles", children: [
     { name: "Technical Articles", href: "/articles", description: "Practical safety guides for UAE construction teams.", badge: "Guides", icon: BookOpen },
+    { name: "RAMS Resource Hub", href: "/resources/risk-assessment-method-statement", description: "Risk assessment and method statement guidance.", badge: "RAMS", icon: ClipboardCheck },
     { name: "Standards", href: "/standards/en-13374-edge-protection", description: "BS EN 13374:2025 edge protection guidance.", badge: "Standards", icon: ShieldCheck },
     { name: "Downloads", href: "/edge-protection-downloads", description: "Request current technical documents and checklists.", badge: "Documents", icon: ClipboardCheck },
     { name: "FAQ", href: "/faq", description: "Answers for contractors, consultants and HSE teams.", badge: "FAQ", icon: BookOpen },

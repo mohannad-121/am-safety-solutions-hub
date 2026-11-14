@@ -11,6 +11,12 @@ const routes = [
   "/", "/products", "/products/safety-nets", "/edge-protection-systems-uae",
   "/projects", "/edge-protection-training", "/articles", "/about", "/standards",
   "/edge-protection-downloads", "/faq", "/contact", "/quote", "/privacy", "/terms",
+  "/safety-net-uae", "/safety-catch-net-dubai", "/vertical-safety-net",
+  "/loading-platforms-uae", "/work-at-height-safety-uae", "/temporary-works-safety-solutions-uae",
+  "/what-is-en-1263-safety-net", "/what-is-en-13374-edge-protection",
+  "/resources/risk-assessment-method-statement", "/resources/safety-net-risk-assessment-method-statement",
+  "/resources/edge-protection-risk-assessment-method-statement", "/resources/loading-platform-risk-assessment-method-statement",
+  "/resources/how-to-make-method-statement",
 ];
 const mobileWidths = [430, 414, 390, 375, 360];
 

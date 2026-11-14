@@ -6,7 +6,7 @@ import { useCmsImages } from "@/hooks/use-cms";
 
 const groups = [
   { title: "Products", links: [["Safety Net Systems", "/products/safety-nets"], ["Edge Protection", "/edge-protection-systems-uae"], ["Loading Platforms", "/products/loading-platforms"], ["Shaft & Hoist Gates", "/high-risk-products"], ["Steel Fabrication", "/steel-fabrication"]] },
-  { title: "Technical", links: [["BS EN 13374:2025", "/standards/en-13374-edge-protection"], ["Articles & Guides", "/articles"], ["Technical Downloads", "/edge-protection-downloads"], ["Training Center", "/edge-protection-training"], ["Engineering Support", "/engineering-solutions"]] },
+  { title: "Technical", links: [["RAMS Resource Hub", "/resources/risk-assessment-method-statement"], ["Method Statement Guide", "/resources/how-to-make-method-statement"], ["BS EN 13374:2025", "/standards/en-13374-edge-protection"], ["Articles & Guides", "/articles"], ["Technical Downloads", "/edge-protection-downloads"], ["Training Center", "/edge-protection-training"], ["Engineering Support", "/engineering-solutions"]] },
   { title: "Company", links: [["About Us", "/about"], ["Projects", "/projects"], ["FAQ", "/faq"], ["Request a Quote", "/quote"], ["Contact", "/contact"], ["Privacy Policy", "/privacy"], ["Terms of Use", "/terms"]] },
 ];
 

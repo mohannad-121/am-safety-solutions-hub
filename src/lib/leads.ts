@@ -35,3 +35,4 @@ export async function submitWebsiteLead(lead: WebsiteLead, files: File[] = []) {
   // Notification is best-effort: a submitted lead remains stored if email delivery is unavailable.
   supabase.functions.invoke("notify-lead", { body: leadRecord }).catch(() => undefined);
 }
+

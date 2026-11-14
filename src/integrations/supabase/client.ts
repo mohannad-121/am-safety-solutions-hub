@@ -2,8 +2,11 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+// Publishable project configuration is safe in browser code. Environment
+// variables still take precedence, while the fallback prevents a blank public
+// site when a deployment is created before its Vercel variables are synced.
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://ejrtjzceftxxbxnivpno.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_DGAwE0yR4hv1N61Wmdcjiw_5q6UQuON';
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";

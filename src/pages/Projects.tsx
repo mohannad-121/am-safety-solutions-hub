@@ -19,3 +19,4 @@ export default function Projects(){
     <section className="bg-accent py-12 text-white"><div className="container-wide flex flex-col justify-between gap-6 md:flex-row md:items-center"><div><h2 className="font-display text-4xl font-extrabold uppercase">Have a Similar Site Challenge?</h2><p className="mt-2 text-white/75">Share the hazard, project stage, drawings and required date.</p></div><Link to="/quote" className="ambs-button-yellow">Send Project Details</Link></div></section>
   </main><Footer/></div>;
 }
+

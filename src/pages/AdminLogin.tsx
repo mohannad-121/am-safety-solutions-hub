@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,9 @@ export default function AdminLogin() {
   const [useMagicLink, setUseMagicLink] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const requestedPath = new URLSearchParams(location.search).get("next");
+  const destination = requestedPath?.startsWith("/admin/") ? requestedPath : "/admin/dashboard";
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +32,7 @@ export default function AdminLogin() {
       if (DEV_MODE && !useMagicLink && password === DEV_PASSWORD) {
         localStorage.setItem("admin_user", JSON.stringify({ email, id: "dev-user" }));
         localStorage.setItem("admin_authenticated", "true");
-        navigate("/admin/dashboard");
+        navigate(destination, { replace: true });
         return;
       }
 
@@ -38,7 +41,7 @@ export default function AdminLogin() {
         const { error: signInError } = await supabase.auth.signInWithOtp({
           email,
           options: {
-            emailRedirectTo: `${window.location.origin}/admin/dashboard`,
+            emailRedirectTo: `${window.location.origin}${destination}`,
           },
         });
 
@@ -56,7 +59,7 @@ export default function AdminLogin() {
         if (data.user) {
           localStorage.setItem("admin_user", JSON.stringify(data.user));
           localStorage.setItem("admin_authenticated", "true");
-          navigate("/admin/dashboard");
+          navigate(destination, { replace: true });
         }
       }
     } catch (err) {

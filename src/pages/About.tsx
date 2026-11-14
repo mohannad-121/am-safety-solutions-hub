@@ -1,4 +1,4 @@
-import { useReducer, useRef, type ReactNode } from "react";
+﻿import { useReducer, useRef, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { motion, useMotionValueEvent, useReducedMotion, useScroll } from "framer-motion";
 import { ArrowRight, CheckCircle2, ClipboardCheck, Factory, GraduationCap, Lightbulb, Ruler, ShieldCheck, Target, Users, Wrench } from "lucide-react";
@@ -129,3 +129,5 @@ export default function About() {
     <section className="relative isolate overflow-hidden py-16 text-white md:py-20"><img src={image(aboutImages.ctaBackgroundImage)} alt="AM Building Solutions construction safety solutions" loading="lazy" className="absolute inset-0 -z-20 h-full w-full object-cover"/><div className="absolute inset-0 -z-10 bg-[#9f0906]/92"/><div className="container-wide"><Reveal className="max-w-4xl"><h2 className="section-title text-white">Let's Build Safer Sites Together</h2><p className="mt-5 text-lg leading-8 text-white/82">Whether your project requires safety nets, temporary edge protection, debris containment, loading platforms or custom temporary works solutions, AM Building Solutions is ready to support.</p><div className="mt-8 flex flex-wrap gap-3"><Link to="/products" className="ambs-button-yellow">Explore Products & Solutions <ArrowRight size={17}/></Link><Link to="/contact" className="hero-secondary-button">Contact Us</Link></div></Reveal></div></section>
   </main><Footer/></div>;
 }
+
+

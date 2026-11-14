@@ -40,3 +40,4 @@ with check ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 create index if not exists website_leads_created_at_idx on public.website_leads (created_at desc);
 create index if not exists website_leads_status_idx on public.website_leads (status);
+

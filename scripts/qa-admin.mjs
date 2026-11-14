@@ -1,4 +1,4 @@
-import { chromium } from "playwright";
+﻿import { chromium } from "playwright";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -7,7 +7,7 @@ const screenshotDir = path.resolve("docs/admin-qa-screenshots");
 const reportPath = path.resolve("docs/admin-qa-report.md");
 const modules = [
   "Dashboard", "Website Pages", "Products & Solutions", "Projects / Case Studies", "Training Center",
-  "Resources", "Articles", "FAQs", "Media Library", "Image Locator", "Leads / Quote Requests",
+  "Resources", "Documents Center", "Articles", "FAQs", "Media Library", "Image Locator", "SEO Center", "Leads / Quote Requests",
   "Website Statistics", "Users & Roles", "Audit Logs", "Settings",
 ];
 
@@ -38,6 +38,11 @@ try {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     overflow <= 2 ? pass(`Navigation: ${module}`, "Loaded without horizontal page overflow") : failure(`Navigation: ${module}`, `Horizontal overflow ${overflow}px`);
   }
+
+  await page.getByRole("button", { name: "SEO Center", exact: true }).first().click();
+  await page.reload({ waitUntil: "domcontentloaded" });
+  await page.getByRole("heading", { name: "SEO Center", exact: true }).waitFor();
+  page.url().includes("/admin/seo") ? pass("Admin route persistence", "SEO Center stayed selected after refresh") : failure("Admin route persistence", page.url());
 
   await page.getByRole("button", { name: "Image Locator", exact: true }).first().click();
   await page.locator('button[data-slot-id="shared.edge-protection"]').click();
@@ -94,3 +99,4 @@ const report = [
 await writeFile(reportPath, report, "utf8");
 console.log(`Admin QA complete: ${results.length - failed.length} passed, ${failed.length} failed.`);
 if (failed.length) process.exitCode = 1;
+

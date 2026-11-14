@@ -42,3 +42,4 @@ export function SiteSearch({ open, onClose }: { open: boolean; onClose: () => vo
     </div>
   );
 }
+

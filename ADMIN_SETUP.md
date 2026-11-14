@@ -11,11 +11,16 @@
 ```env
 VITE_SUPABASE_URL=
 VITE_SUPABASE_PUBLISHABLE_KEY=
+VITE_PUBLIC_SITE_URL=https://am-safety-solutions-hub.vercel.app
 VITE_CMS_REMOTE_ENABLED=false
 VITE_ENABLE_DEV_ADMIN=false
 VITE_DEV_ADMIN_PASSWORD=
 VITE_GA4_PROPERTY_ID=
 VITE_GA4_CONNECTED=false
+VITE_GSC_CONNECTED=false
+VITE_PAGESPEED_CONNECTED=false
+VITE_AI_SUGGESTIONS_CONNECTED=false
+VITE_COMPETITOR_AUDIT_CONNECTED=false
 MICROSOFT_TENANT_ID=
 MICROSOFT_CLIENT_ID=
 MICROSOFT_CLIENT_SECRET=
@@ -30,7 +35,7 @@ Never expose `MICROSOFT_CLIENT_SECRET` or `GOOGLE_SERVICE_ACCOUNT_JSON` through 
 
 ## Database migration
 
-Apply `supabase/migrations/20261113_ambs_cms.sql` with the Supabase CLI or SQL editor. It creates:
+Apply all files in `supabase/migrations` in timestamp order. For the new project, the latest required repair is `20261114073853_restore_seo_center_and_cms_policies.sql`. It creates or repairs:
 
 - CMS administrator profiles and roles.
 - Content records with draft and published JSON.
@@ -38,6 +43,8 @@ Apply `supabase/migrations/20261113_ambs_cms.sql` with the Supabase CLI or SQL e
 - Audit logs and first-party analytics events.
 - The public `cms-media` bucket with file size and MIME restrictions.
 - Row Level Security policies for public reads and administrator writes.
+- SEO audits, approval tasks and suggestion queues.
+- Immutable content snapshots for rollback.
 
 ## First administrator
 

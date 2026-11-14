@@ -19,3 +19,4 @@ export function whatsappUrl(message: string) {
     : "https://wa.me/";
   return `${base}?text=${encodeURIComponent(message)}`;
 }
+

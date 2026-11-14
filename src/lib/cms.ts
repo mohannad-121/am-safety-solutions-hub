@@ -2,7 +2,7 @@ import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
 const client = supabase as unknown as SupabaseClient;
-export const remoteCmsEnabled = !import.meta.env.DEV || import.meta.env.VITE_CMS_REMOTE_ENABLED === "true";
+export const remoteCmsEnabled = import.meta.env.VITE_CMS_REMOTE_ENABLED === "true";
 
 export type CmsRole = "super_admin" | "admin" | "seo_reviewer" | "content_editor" | "media_manager" | "sales_marketing_draft";
 export type CmsStatus = "draft" | "review" | "published" | "archived";
@@ -62,7 +62,7 @@ export type ImageSlot = {
 export type CmsContentRecord = {
   id: string;
   contentKey: string;
-  contentType: "page" | "product" | "project" | "resource" | "article" | "faq" | "training";
+  contentType: "page" | "product" | "project" | "resource" | "document" | "article" | "faq" | "training";
   title: string;
   slug: string;
   status: CmsStatus;
@@ -262,38 +262,43 @@ async function fileToDataUrl(file: File) {
   });
 }
 
-async function uploadMedia(file: File, slotId: string) {
+export async function uploadCmsAsset(file: File, slotId: string) {
+  if (!remoteCmsEnabled && !import.meta.env.DEV) {
+    throw new Error("Production publishing is not configured. Enable VITE_CMS_REMOTE_ENABLED after applying the Supabase migrations.");
+  }
   validateMediaFile(file);
   await validateMagicBytes(file);
   const extension = file.name.split(".").pop()?.toLowerCase() || "bin";
   const safePath = `${slotId.replace(/[^a-z0-9.-]/gi, "-")}/${crypto.randomUUID()}.${extension}`;
-  if (remoteCmsEnabled) try {
+  if (remoteCmsEnabled) {
     const { error } = await client.storage.from("cms-media").upload(safePath, file, { cacheControl: "31536000", upsert: false, contentType: file.type });
-    if (!error) return client.storage.from("cms-media").getPublicUrl(safePath).data.publicUrl;
-  } catch {
-    // Development fallback below.
+    if (error) throw new Error(`Media storage rejected the upload: ${error.message}`);
+    return client.storage.from("cms-media").getPublicUrl(safePath).data.publicUrl;
   }
   return fileToDataUrl(file);
 }
 
 export async function saveImageDraft(slots: ImageSlot[], slotId: string, file: File, user: CmsAdminUser, updates: Partial<ImageSlot>) {
   if (!canManageMedia(user.role)) throw new Error("You do not have permission to replace images.");
-  const imageUrl = await uploadMedia(file, slotId);
+  const imageUrl = await uploadCmsAsset(file, slotId);
   const timestamp = new Date().toISOString();
   const next = slots.map(slot => slot.id === slotId ? { ...slot, ...updates, draftImageUrl: imageUrl, draftAltText: updates.altText ?? slot.altText, updatedAt: timestamp, updatedBy: user.email, versions: [...slot.versions, { id: crypto.randomUUID(), versionNumber: slot.versions.length + 1, imageUrl, fileName: file.name, altText: updates.altText ?? slot.altText, status: "draft" as const, createdAt: timestamp, createdBy: user.email }] } : slot);
   writeLocal(CMS_IMAGE_STORAGE_KEY, next);
   const changed = next.find(slot => slot.id === slotId)!;
   if (remoteCmsEnabled) try {
-    await client.from("cms_image_slots").upsert(mapSlotToDatabase(changed));
-    await client.from("cms_image_versions").insert({ slot_id: slotId, version_number: changed.versions.length, image_url: imageUrl, file_name: file.name, alt_text: changed.draftAltText || changed.altText, status: "draft", created_by: user.id });
+    const slotResult = await client.from("cms_image_slots").upsert(mapSlotToDatabase(changed));
+    if (slotResult.error) throw slotResult.error;
+    const versionResult = await client.from("cms_image_versions").insert({ slot_id: slotId, version_number: changed.versions.length, image_url: imageUrl, file_name: file.name, alt_text: changed.draftAltText || changed.altText, status: "draft", created_by: user.id });
+    if (versionResult.error) throw versionResult.error;
     await recordAudit(user, "image.uploaded", "image_slot", slotId, undefined, { imageUrl, fileName: file.name });
-  } catch {
-    // Local development remains usable before migration setup.
+  } catch (error) {
+    throw new Error(`Draft could not be saved to Supabase: ${error instanceof Error ? error.message : "database error"}`);
   }
   return next;
 }
 
 export async function publishImage(slots: ImageSlot[], slotId: string, user: CmsAdminUser) {
+  if (!remoteCmsEnabled && !import.meta.env.DEV) throw new Error("Production publishing is not configured. Apply the Supabase migrations and enable the remote CMS first.");
   if (!canPublish(user.role)) throw new Error("You do not have permission to apply images to the live website.");
   const current = slots.find(slot => slot.id === slotId);
   if (!current?.draftImageUrl) throw new Error("No draft image is ready to publish.");
@@ -305,17 +310,20 @@ export async function publishImage(slots: ImageSlot[], slotId: string, user: Cms
   writeLocal(CMS_IMAGE_STORAGE_KEY, next);
   const changed = next.find(slot => slot.id === slotId)!;
   if (remoteCmsEnabled) try {
-    await client.from("cms_image_slots").upsert(mapSlotToDatabase(changed));
-    await client.from("cms_image_versions").insert({ slot_id: slotId, version_number: changed.versions.length, image_url: liveUrl, file_name: liveUrl.split("/").pop() || slotId, alt_text: changed.altText, status: "published", created_by: user.id });
+    const slotResult = await client.from("cms_image_slots").upsert(mapSlotToDatabase(changed));
+    if (slotResult.error) throw slotResult.error;
+    const versionResult = await client.from("cms_image_versions").insert({ slot_id: slotId, version_number: changed.versions.length, image_url: liveUrl, file_name: liveUrl.split("/").pop() || slotId, alt_text: changed.altText, status: "published", created_by: user.id });
+    if (versionResult.error) throw versionResult.error;
     await recordAudit(user, "image.applied_to_website", "image_slot", slotId, { imageUrl: current.publishedImageUrl }, { imageUrl: liveUrl });
     await recordAudit(user, "image.cache_revalidated", "image_slot", slotId, undefined, { cacheBuster: liveUrl });
-  } catch {
-    // Local development remains usable before migration setup.
+  } catch (error) {
+    throw new Error(`Image could not be published to Supabase: ${error instanceof Error ? error.message : "database error"}`);
   }
   return next;
 }
 
 export async function rollbackImage(slots: ImageSlot[], slotId: string, user: CmsAdminUser) {
+  if (!remoteCmsEnabled && !import.meta.env.DEV) throw new Error("Production rollback is not configured. Apply the Supabase migrations and enable the remote CMS first.");
   if (!canPublish(user.role)) throw new Error("You do not have permission to rollback live images.");
   const current = slots.find(slot => slot.id === slotId);
   if (!current) throw new Error("Image slot not found.");
@@ -328,11 +336,13 @@ export async function rollbackImage(slots: ImageSlot[], slotId: string, user: Cm
   writeLocal(CMS_IMAGE_STORAGE_KEY, next);
   const changed = next.find(slot => slot.id === slotId)!;
   if (remoteCmsEnabled) try {
-    await client.from("cms_image_slots").upsert(mapSlotToDatabase(changed));
-    await client.from("cms_image_versions").insert({ slot_id: slotId, version_number: changed.versions.length, image_url: liveUrl, file_name: prior.fileName, alt_text: changed.altText, status: "rollback", created_by: user.id });
+    const slotResult = await client.from("cms_image_slots").upsert(mapSlotToDatabase(changed));
+    if (slotResult.error) throw slotResult.error;
+    const versionResult = await client.from("cms_image_versions").insert({ slot_id: slotId, version_number: changed.versions.length, image_url: liveUrl, file_name: prior.fileName, alt_text: changed.altText, status: "rollback", created_by: user.id });
+    if (versionResult.error) throw versionResult.error;
     await recordAudit(user, "image.rollback", "image_slot", slotId, { imageUrl: current.publishedImageUrl }, { imageUrl: liveUrl });
-  } catch {
-    // Local development remains usable before migration setup.
+  } catch (error) {
+    throw new Error(`Rollback could not be saved to Supabase: ${error instanceof Error ? error.message : "database error"}`);
   }
   return next;
 }
@@ -357,6 +367,7 @@ export async function fetchContent() {
 }
 
 export async function saveContentRecord(records: CmsContentRecord[], record: CmsContentRecord, user: CmsAdminUser, publish = false) {
+  if (!remoteCmsEnabled && !import.meta.env.DEV) throw new Error("Production content storage is not configured. Apply the Supabase migrations and enable VITE_CMS_REMOTE_ENABLED first.");
   if (publish && !canPublish(user.role)) throw new Error("Only Admin and Super Admin can publish.");
   if (!canEditContent(user.role)) throw new Error("You do not have permission to edit content.");
   const timestamp = new Date().toISOString();
@@ -364,10 +375,14 @@ export async function saveContentRecord(records: CmsContentRecord[], record: Cms
   const next = records.some(item => item.id === saved.id) ? records.map(item => item.id === saved.id ? saved : item) : [saved, ...records];
   writeLocal(CMS_CONTENT_STORAGE_KEY, next);
   if (remoteCmsEnabled) try {
-    await client.from("cms_content").upsert({ id: saved.id.startsWith("new-") ? undefined : saved.id, content_key: saved.contentKey, content_type: saved.contentType, title: saved.title, slug: saved.slug, status: saved.status, draft_data: saved.draftData, published_data: saved.publishedData, seo_data: saved.seoData, updated_by: user.id, updated_at: timestamp, published_at: publish ? timestamp : null }, { onConflict: "content_key" });
+    const previous = records.find(item => item.contentKey === saved.contentKey) || record;
+    const versionResult = await client.from("cms_content_versions").insert({ content_key: previous.contentKey, content_type: previous.contentType, title: previous.title, slug: previous.slug, status: previous.status, draft_data: previous.draftData, published_data: previous.publishedData, seo_data: previous.seoData, change_type: publish ? "publish" : "draft", created_by: user.id });
+    if (versionResult.error) throw versionResult.error;
+    const saveResult = await client.from("cms_content").upsert({ id: saved.id.startsWith("new-") ? undefined : saved.id, content_key: saved.contentKey, content_type: saved.contentType, title: saved.title, slug: saved.slug, status: saved.status, draft_data: saved.draftData, published_data: saved.publishedData, seo_data: saved.seoData, updated_by: user.id, updated_at: timestamp, published_at: publish ? timestamp : null }, { onConflict: "content_key" });
+    if (saveResult.error) throw saveResult.error;
     await recordAudit(user, publish ? "content.published" : "content.edited", saved.contentType, saved.contentKey, undefined, saved);
-  } catch {
-    // Local development remains usable before migration setup.
+  } catch (error) {
+    throw new Error(`Content could not be saved to Supabase: ${error instanceof Error ? error.message : "database error"}`);
   }
   return next;
 }
