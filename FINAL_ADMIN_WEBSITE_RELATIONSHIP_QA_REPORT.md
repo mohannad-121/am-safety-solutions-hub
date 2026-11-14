@@ -50,16 +50,23 @@ Generated: 2026-11-14
 - Unit tests: 16 passed.
 - ESLint: 0 errors, 5 existing Fast Refresh warnings.
 - Production build: passed; 62 sitemap routes prerendered.
+- Vercel-mode build: passed without downloading Chromium; browser prerender validation remains part of local release checks.
+- Supabase REST verification: published CMS reads return HTTP 200; anonymous SEO-table reads return no rows under RLS.
 - Admin browser QA: 25 passed, 0 failed in development mode.
 - Existing public QA still reports the homepage hover-video issue; Firefox and WebKit binaries are not installed.
 
 ## Production Actions Required
 
-1. Apply every Supabase migration, including `20261114073853_restore_seo_center_and_cms_policies.sql`.
-2. Create the first Supabase Auth user and insert its `cms_admin_profiles` row as `super_admin`.
-3. Add `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_PUBLIC_SITE_URL` and `VITE_CMS_REMOTE_ENABLED=true` to Vercel Production and Preview environments.
-4. Configure Supabase Auth Site URL and redirect allow-list for the Vercel URL and future `ambs.ae` domain.
-5. Deploy the reviewed GitHub branch, run authenticated production QA, and only then promote it.
+Completed on 2026-11-14:
+
+- Applied `20261114073853_restore_seo_center_and_cms_policies.sql` to the new Supabase project.
+- Added `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_PUBLIC_SITE_URL` and `VITE_CMS_REMOTE_ENABLED=true` to Vercel Production and Preview.
+
+Still required:
+
+1. Create the first Supabase Auth user and insert its `cms_admin_profiles` row as `super_admin`.
+2. Configure Supabase Auth Site URL and redirect allow-list for the Vercel URL and future `ambs.ae` domain.
+3. Deploy the reviewed GitHub branch, run authenticated production QA, and only then promote it.
 
 ## Credential-Dependent Work
 

@@ -4,6 +4,11 @@ import path from "node:path";
 import { chromium } from "playwright";
 import { preview } from "vite";
 
+if (process.env.VERCEL) {
+  console.log("Skipping browser prerender on Vercel; local builds validate every sitemap route.");
+  process.exit(0);
+}
+
 const rootDir = path.resolve(process.cwd());
 const distDir = path.join(rootDir, "dist");
 const sitemapPath = path.join(distDir, "sitemap.xml");
