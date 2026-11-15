@@ -99,10 +99,21 @@ function imageSignals(html: string, base: string) {
 }
 function schemaSignals(html: string) {
   const types: string[] = [];
+  const urls: string[] = [];
   let invalidJsonLd = 0;
-  const visit = (value: unknown) => { if (Array.isArray(value)) return value.forEach(visit); if (!value || typeof value !== "object") return; const record = value as Record<string, unknown>; const type = record["@type"]; if (Array.isArray(type)) types.push(...type.map(String)); else if (typeof type === "string") types.push(type); visit(record["@graph"]); };
+  const visit = (value: unknown) => {
+    if (Array.isArray(value)) return value.forEach(visit);
+    if (!value || typeof value !== "object") return;
+    const record = value as Record<string, unknown>;
+    const type = record["@type"];
+    const typeList = Array.isArray(type) ? type.map(String) : typeof type === "string" ? [type] : [];
+    types.push(...typeList);
+    if (typeof record.mainEntityOfPage === "string") urls.push(record.mainEntityOfPage);
+    if (typeList.some((item) => ["WebPage", "Article", "BlogPosting"].includes(item)) && typeof record.url === "string") urls.push(record.url);
+    visit(record["@graph"]);
+  };
   for (const match of html.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) { try { visit(JSON.parse(match[1])); } catch { invalidJsonLd += 1; } }
-  return { types: [...new Set(types)], invalidJsonLd };
+  return { types, urls: [...new Set(urls)], invalidJsonLd };
 }
 function robotsRules(text: string) {
   const disallowed: string[] = [];
@@ -142,12 +153,17 @@ async function liveCrawl(siteUrl: string, maxPages = 100) {
     for (const link of links) if (!queued.has(link.url) && queue.length + pages.length < limit) { queued.add(link.url); queue.push(link.url); }
     const images = imageSignals(html, finalUrl);
     const schemas = schemaSignals(html);
-    const canonicals = canonicalLinks(html).map((value) => { try { return new URL(value, finalUrl).toString(); } catch { return value; } });
+    const canonicalValues = canonicalLinks(html);
+    const canonicals = canonicalValues.map((value) => { try { return new URL(value, finalUrl).toString(); } catch { return value; } });
     const h1 = [...html.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)].map((match) => match[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
     const h2 = [...html.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/gi)].map((match) => match[1].replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
     const title = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(html)?.[1]?.trim() || "";
     const description = meta(html, "description");
     const robots = meta(html, "robots");
+    const ogUrlValue = meta(html, "og:url");
+    const ogUrl = (() => { try { return ogUrlValue ? new URL(ogUrlValue, finalUrl).toString() : ""; } catch { return ogUrlValue; } })();
+    const visibleText = html.replace(/<script\b[\s\S]*?<\/script>/gi, " ").replace(/<style\b[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const topicClusterIds = [...html.matchAll(/data-topic-cluster=["']([^"']+)["']/gi)].map((match) => match[1]);
     const issues: string[] = [];
     if (!response.ok) issues.push(`HTTP ${response.status}`);
     if (!title) issues.push("Missing title");
@@ -161,7 +177,7 @@ async function liveCrawl(siteUrl: string, maxPages = 100) {
     const genericAnchorCount = links.filter((link) => /^(learn more|click here|read more|view|more)$/i.test(link.anchorText)).length;
     if (genericAnchorCount) issues.push(`${genericAnchorCount} generic internal-link anchor(s)`);
     if (links.length < 3) issues.push(`Only ${links.length} internal link(s)`);
-    pages.push({ requestedUrl, finalUrl, status: response.status, redirected: requestedUrl !== finalUrl, responseMs: Date.now() - started, title, description, canonical: canonicals[0] || "", canonicalCount: canonicals.length, robots, indexable: response.ok && !/noindex/i.test(robots), h1, h2, schemaTypes: schemas.types, invalidJsonLd: schemas.invalidJsonLd, internalLinks: links.length, genericAnchorCount, links, imageCount: images.length, images, imagesMissingAlt: images.filter((image) => !image.alt.trim()).map((image) => image.url), issues });
+    pages.push({ requestedUrl, finalUrl, status: response.status, redirected: requestedUrl !== finalUrl, responseMs: Date.now() - started, title, description, canonical: canonicals[0] || "", canonicalRaw: canonicalValues[0] || "", canonicalCount: canonicals.length, ogUrl, robots, indexable: response.ok && !/noindex/i.test(robots), h1, h2, schemaTypes: schemas.types, schemaUrls: schemas.urls, invalidJsonLd: schemas.invalidJsonLd, textLength: visibleText.length, topicClusterIds, reviewSignal: /written by|technical review|reviewed by|content review/i.test(visibleText), helpfulContentSignal: /short answer|frequently asked|checklist|what project teams|what you need|required sections|before installation|scope review|applications/i.test(visibleText), internalLinks: links.length, genericAnchorCount, links, imageCount: images.length, images, imagesMissingAlt: images.filter((image) => !image.alt.trim()).map((image) => image.url), issues });
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
   const inbound = new Map<string, number>();
@@ -185,7 +201,7 @@ async function liveCrawl(siteUrl: string, maxPages = 100) {
   const brokenImages = [];
   for (const url of imageTargets) { const result = await checkTarget(url); if (result.status >= 400 || !result.status) brokenImages.push(result); }
   const publicPages = pages.map(({ links, images, ...page }) => ({ ...page, inboundLinks: inbound.get(page.finalUrl) || 0, clickDepth: depths.get(page.finalUrl) ?? null, orphanStatus: sitemapSet.has(page.requestedUrl) && !inbound.get(page.finalUrl) && page.finalUrl !== `${origin}/` ? "orphan" : depths.has(page.finalUrl) ? "linked" : "sitemap_only", internalLinkList: links }));
-  return { siteUrl: origin, checkedAt: new Date().toISOString(), pages: publicPages, sitemapCount: sitemapUrls.length, discoveredCount: queued.size, orphanPages: publicPages.filter((page) => page.orphanStatus === "orphan").map((page) => page.finalUrl), sitemapOnlyPages: publicPages.filter((page) => page.orphanStatus === "sitemap_only").map((page) => page.finalUrl), weaklyLinkedPages: publicPages.filter((page) => page.finalUrl !== `${origin}/` && Number(page.inboundLinks) < 3).map((page) => page.finalUrl), deepPages: publicPages.filter((page) => typeof page.clickDepth === "number" && page.clickDepth > 3).map((page) => page.finalUrl), genericAnchorPages: publicPages.filter((page) => Number(page.genericAnchorCount) > 0).map((page) => page.finalUrl), crawledMissingFromSitemap: publicPages.filter((page) => !sitemapSet.has(page.finalUrl)).map((page) => page.finalUrl), brokenLinks, redirectedLinks, brokenImages, duplicateTitles: duplicates(titleGroups), duplicateDescriptions: duplicates(descriptionGroups), duplicateCanonicals: duplicates(canonicalGroups), robots: { fetched: Boolean(robotsText), disallowed }, limits: { maxPages: limit, delayMs: 100, linkChecks: 500, imageChecks: 300 } };
+  return { siteUrl: origin, checkedAt: new Date().toISOString(), pages: publicPages, sitemapCount: sitemapUrls.length, sitemapUrls, discoveredCount: queued.size, orphanPages: publicPages.filter((page) => page.orphanStatus === "orphan").map((page) => page.finalUrl), sitemapOnlyPages: publicPages.filter((page) => page.orphanStatus === "sitemap_only").map((page) => page.finalUrl), weaklyLinkedPages: publicPages.filter((page) => page.finalUrl !== `${origin}/` && Number(page.inboundLinks) < 3).map((page) => page.finalUrl), deepPages: publicPages.filter((page) => typeof page.clickDepth === "number" && page.clickDepth > 3).map((page) => page.finalUrl), genericAnchorPages: publicPages.filter((page) => Number(page.genericAnchorCount) > 0).map((page) => page.finalUrl), crawledMissingFromSitemap: publicPages.filter((page) => !sitemapSet.has(page.finalUrl)).map((page) => page.finalUrl), brokenLinks, redirectedLinks, brokenImages, duplicateTitles: duplicates(titleGroups), duplicateDescriptions: duplicates(descriptionGroups), duplicateCanonicals: duplicates(canonicalGroups), robots: { fetched: Boolean(robotsText), disallowed }, limits: { maxPages: limit, delayMs: 100, linkChecks: 500, imageChecks: 300 } };
 }
 
 async function cacheGet(client: SupabaseClient, cacheKey: string) {

@@ -1,6 +1,10 @@
 import { supabase } from "@/integrations/supabase/client";
 import { getPublicSiteUrl } from "@/lib/canonical";
-import { remoteCmsEnabled } from "@/lib/cms";
+
+// The Edge Function enforces authentication and CMS-role authorization itself.
+// Keep an explicit opt-out for isolated builds, but do not silently disable the
+// production tools when a Vercel build-time flag is absent.
+export const seoIntegrationsEnabled = import.meta.env.VITE_SEO_INTEGRATIONS_ENABLED !== "false";
 
 export type IntegrationStatus = {
   searchConsole: boolean;
@@ -19,19 +23,27 @@ export type CrawlPage = {
   title: string;
   description: string;
   canonical: string;
+  canonicalRaw: string;
   canonicalCount: number;
+  ogUrl: string;
   robots: string;
   indexable: boolean;
   h1: string[];
   h2: string[];
   schemaTypes: string[];
+  schemaUrls: string[];
   invalidJsonLd: number;
+  textLength: number;
+  topicClusterIds: string[];
+  reviewSignal: boolean;
+  helpfulContentSignal: boolean;
   internalLinks: number;
   genericAnchorCount: number;
   inboundLinks: number;
   clickDepth: number | null;
   orphanStatus: "linked" | "orphan" | "sitemap_only";
   imagesMissingAlt: string[];
+  internalLinkList: Array<{ url: string; anchorText: string }>;
   issues: string[];
 };
 export type LinkFinding = { url: string; status: number; finalUrl: string; sources?: Array<{ sourcePage: string; anchorText: string }> };
@@ -40,6 +52,7 @@ export type LiveCrawlResult = {
   siteUrl: string;
   cached?: boolean;
   sitemapCount: number;
+  sitemapUrls: string[];
   discoveredCount: number;
   orphanPages: string[];
   sitemapOnlyPages: string[];
@@ -64,14 +77,14 @@ export type CruxResult = { record?: { key?: Record<string, string>; metrics?: Re
 export type IntegrationRun = { id: string; action: string; status: string; site_url: string; error_message?: string | null; started_at: string; completed_at?: string | null };
 
 async function invoke<T>(action: string, payload: Record<string, unknown> = {}) {
-  if (!remoteCmsEnabled) throw new Error("SEO integrations are not enabled for this environment.");
+  if (!seoIntegrationsEnabled) throw new Error("SEO integrations are disabled for this environment.");
   const { data, error } = await supabase.functions.invoke("seo-integrations", { body: { action, siteUrl: getPublicSiteUrl(), ...payload } });
   if (error) throw new Error(error.message);
   if (data?.error) throw new Error(data.error);
   return data as T;
 }
 
-export const getSeoIntegrationStatus = () => remoteCmsEnabled ? invoke<IntegrationStatus>("status") : Promise.resolve({ searchConsole: false, pageSpeed: false, crux: false, siteUrl: getPublicSiteUrl(), inspectionQuota: { used: 0, safetyBudget: 200 } });
+export const getSeoIntegrationStatus = () => seoIntegrationsEnabled ? invoke<IntegrationStatus>("status") : Promise.resolve({ searchConsole: false, pageSpeed: false, crux: false, siteUrl: getPublicSiteUrl(), inspectionQuota: { used: 0, safetyBudget: 200 } });
 export const runLiveCrawl = (maxPages = 100, force = false) => invoke<LiveCrawlResult>("live_crawl", { maxPages, force });
 export const syncSearchConsole = (force = false) => { const endDate = new Date(); const startDate = new Date(endDate); startDate.setDate(startDate.getDate() - 28); return invoke<SearchAnalyticsResult>("search_analytics", { startDate: startDate.toISOString().slice(0, 10), endDate: endDate.toISOString().slice(0, 10), force }); };
 export const inspectSearchConsoleUrls = (urls: string[], force = false) => invoke<InspectionResult>("inspect", { urls, force });
@@ -80,7 +93,7 @@ export const submitSearchConsoleSitemap = () => invoke<{ submitted: boolean; sit
 export const runPageSpeed = (url = getPublicSiteUrl(), device: "mobile" | "desktop" = "mobile") => invoke<PageSpeedResult>("pagespeed", { urls: [url], device });
 export const runCrux = (url = getPublicSiteUrl(), device: "mobile" | "desktop" = "mobile") => invoke<CruxResult>("crux", { urls: [url], device });
 export async function getSeoIntegrationHistory() {
-  if (!remoteCmsEnabled) return [];
+  if (!seoIntegrationsEnabled) return [];
   const result = await supabase.from("seo_integration_runs").select("id,action,status,site_url,error_message,started_at,completed_at").order("started_at", { ascending: false }).limit(20);
   if (result.error) throw new Error(result.error.message);
   return (result.data || []) as IntegrationRun[];

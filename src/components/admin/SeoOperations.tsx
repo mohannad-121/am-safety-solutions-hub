@@ -54,7 +54,7 @@ export function SeoOperations() {
     setStatus(nextStatus);
     setHistory(nextHistory);
   };
-  useEffect(() => { void refreshStatus().catch(() => setStatus({ searchConsole: false, pageSpeed: false, crux: false, siteUrl: getPublicSiteUrl() })); }, []);
+  useEffect(() => { void refreshStatus().catch(() => setStatus({ searchConsole: false, pageSpeed: false, crux: false, siteUrl: getPublicSiteUrl(), inspectionQuota: { used: 0, safetyBudget: 200 } })); }, []);
 
   const execute = async <T,>(name: string, operation: () => Promise<T>, success: string, commit: (value: T) => void) => {
     setBusy(name); setError(""); setMessage("");
