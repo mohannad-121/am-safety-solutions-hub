@@ -25,7 +25,7 @@ export function Chatbot() {
 
   const submit = (event: FormEvent) => { event.preventDefault(); ask(query); };
 
-  return <div className="fixed bottom-5 right-5 z-[70]">
+  return <div className="fixed bottom-20 right-6 z-[70] hidden md:block">
     <button type="button" aria-label={open ? "Close AMBS assistant" : "Open AMBS assistant"} aria-expanded={open} onClick={() => setOpen((value) => !value)} className="flex h-14 w-14 items-center justify-center rounded-full bg-accent text-white shadow-xl transition hover:scale-105">{open ? <X/> : <MessageCircle/>}</button>
     {open && <section className="absolute bottom-16 right-0 flex h-[min(620px,calc(100dvh-110px))] w-[min(390px,calc(100vw-32px))] flex-col overflow-hidden rounded-lg border border-border bg-white shadow-2xl" aria-label="AMBS project assistant">
       <header className="bg-[#20262b] px-5 py-4 text-white"><div className="flex items-center justify-between"><div><h2 className="font-display text-xl font-bold uppercase">AMBS Project Assistant</h2><p className="mt-1 text-xs text-white/65">Products, standards and project guidance</p></div><span className="h-2.5 w-2.5 rounded-full bg-green-400" title="Available"/></div></header>

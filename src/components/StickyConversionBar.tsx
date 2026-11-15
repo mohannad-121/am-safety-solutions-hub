@@ -1,5 +1,5 @@
-import { Link, useLocation } from "react-router-dom";
-import { FileUp, MessageSquareText } from "lucide-react";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { FileUp, House, LayoutGrid, MessageSquareText } from "lucide-react";
 import { company, whatsappUrl } from "@/config/company";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 
@@ -19,9 +19,12 @@ export function StickyConversionBar() {
           </div>
         </div>
       </aside>
-      {company.whatsappNumber && <a href={whatsappUrl(message)} target="_blank" rel="noreferrer" className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl transition-transform hover:scale-105 md:bottom-20 md:right-6" aria-label="Message AM Building Solutions on WhatsApp" title="WhatsApp AMBS">
-        <WhatsAppIcon className="h-8 w-8" />
-      </a>}
+      <aside className="mobile-action-dock md:hidden" aria-label="Quick project actions">
+        <NavLink to="/" end className={({ isActive }) => `mobile-dock-action ${isActive ? "is-active" : ""}`}><House aria-hidden="true" /><span>Home</span></NavLink>
+        <NavLink to="/products" className={({ isActive }) => `mobile-dock-action ${isActive ? "is-active" : ""}`}><LayoutGrid aria-hidden="true" /><span>Solutions</span></NavLink>
+        <Link to="/quote" className="mobile-dock-action is-primary"><MessageSquareText aria-hidden="true" /><span>Get Quote</span></Link>
+        {company.whatsappNumber && <a href={whatsappUrl(message)} target="_blank" rel="noreferrer" className="mobile-dock-action is-whatsapp" aria-label="Message AM Building Solutions on WhatsApp"><WhatsAppIcon aria-hidden="true" /><span>WhatsApp</span></a>}
+      </aside>
     </>
   );
 }

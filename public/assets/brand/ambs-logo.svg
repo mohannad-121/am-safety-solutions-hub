@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 180" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 180" role="img" aria-labelledby="title desc">
   <title id="title">AM Building Solutions</title>
   <desc id="desc">AMBS red and amber logo</desc>
   <path fill="#ff8a00" d="M18 18h17v93l89 40v15H18z"/>
   <path fill="#ed0805" d="M86 18h48l66 126h-39l-14-29h-69L64 144H25zm26 35-21 43h43z"/>
   <path fill="#ed0805" d="M167 18h38l30 48 30-48h39v126h-35V76l-34 53-34-53v68h-34z"/>
-  <path fill="#ff8a00" d="M18 153h350v14H18z"/>
-  <text x="382" y="84" fill="#20262b" font-family="Arial, sans-serif" font-size="28" font-weight="700">BUILDING</text>
-  <text x="382" y="116" fill="#c51a14" font-family="Arial, sans-serif" font-size="28" font-weight="700">SOLUTIONS</text>
+  <path fill="#ff8a00" d="M18 153h306v14H18z"/>
+  <text x="342" y="82" fill="#20262b" font-family="Arial, sans-serif" font-size="30" font-weight="700">BUILDING</text>
+  <text x="342" y="120" fill="#c51a14" font-family="Arial, sans-serif" font-size="30" font-weight="700">SOLUTIONS</text>
 </svg>

@@ -1,5 +1,5 @@
-const CACHE_NAME = "ambs-static-v1";
-const CORE_ASSETS = ["/", "/assets/brand/ambs-logo.svg", "/assets/brand/ambs-mark.svg"];
+const CACHE_NAME = "ambs-static-v2";
+const CORE_ASSETS = ["/", "/manifest.webmanifest", "/assets/brand/ambs-logo.svg", "/assets/brand/ambs-logo-light.svg", "/assets/brand/ambs-mark.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS)));

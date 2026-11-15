@@ -1,0 +1,19 @@
+{
+  "name": "AM Building Solutions",
+  "short_name": "AMBS Safety",
+  "description": "Construction safety systems, technical resources and project support across the UAE and GCC.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#171c21",
+  "theme_color": "#171c21",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/assets/brand/ambs-mark.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

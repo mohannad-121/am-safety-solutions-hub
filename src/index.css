@@ -210,7 +210,9 @@
   .mega-product-link strong { @apply block font-display text-base font-bold uppercase text-[#20262b]; }
   .mega-product-link small { @apply mt-1 block text-[11px] leading-4 text-slate-600; }
   .mega-product-link em { @apply self-start rounded-sm bg-[#fff1c7] px-2 py-1 text-[9px] font-bold not-italic uppercase text-[#5d4100]; }
-  .mobile-nav-card { @apply flex min-h-12 items-center justify-between gap-3 rounded-md border border-border bg-white px-4 py-3 text-sm font-bold shadow-sm transition-colors hover:border-accent hover:text-accent; }
+  .site-header { padding-top: env(safe-area-inset-top); }
+  .brand-logo { max-width: min(48vw, 200px); }
+  .mobile-nav-card { @apply flex min-h-12 items-center justify-between gap-3 rounded-lg border border-border bg-white px-4 py-3 text-sm font-bold shadow-sm transition-colors hover:border-accent hover:text-accent active:bg-[#fff4f2]; }
   .mobile-nav-card small { @apply mt-1 block text-[10px] font-semibold uppercase text-muted-foreground; }
   .mobile-products-toggle { @apply mt-4 flex min-h-12 w-full items-center justify-between rounded-md bg-[#171c21] px-4 py-3 text-left font-bold text-white; }
   .mobile-nav-link { @apply rounded-sm px-3 py-3 font-semibold hover:bg-secondary hover:text-accent; }
@@ -245,6 +247,12 @@
   .sound-toggle-btn.muted { @apply text-white; background: rgba(206,43,26,.92); }
   .sound-toggle-btn:hover { transform: translateY(-1px); }
   .hero-badge { @apply inline-flex items-center gap-2 rounded-sm border border-white/25 bg-black/30 px-3 py-2 text-xs font-semibold text-white/90 backdrop-blur-sm; }
+  .mobile-action-dock { @apply fixed bottom-0 left-0 right-0 z-[60] grid grid-flow-col auto-cols-fr border-t border-white/10 bg-[#171c21]/95 px-2 pt-2 text-white shadow-[0_-10px_30px_rgba(0,0,0,.24)] backdrop-blur-xl; padding-bottom: calc(.5rem + env(safe-area-inset-bottom)); }
+  .mobile-dock-action { @apply flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-lg px-2 text-[11px] font-bold transition-colors active:bg-white/15; }
+  .mobile-dock-action svg { @apply h-5 w-5; }
+  .mobile-dock-action.is-active { @apply text-[#F9A900]; }
+  .mobile-dock-action.is-primary { @apply bg-[#d70a07] text-white active:bg-[#a90404]; }
+  .mobile-dock-action.is-whatsapp { @apply text-[#5dea89]; }
   .product-card, .article-card { @apply overflow-hidden rounded-md border border-border bg-white transition-all duration-200 hover:-translate-y-1 hover:border-accent hover:shadow-xl; }
   .product-image { @apply aspect-[3/2] overflow-hidden bg-secondary; }
   .product-image img { @apply h-full w-full object-cover transition-transform duration-500; }
@@ -300,7 +308,16 @@
 
 @media (max-width: 767px) {
   .premium-video-frame { min-height: 360px; }
-  .hero-video-section { min-height: 680px; }
+  .hero-video-section { min-height: calc(100dvh - 68px - env(safe-area-inset-top)); align-items: flex-start; }
+  .hero-mobile-scrim { position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(10,15,20,.35) 0%, rgba(10,15,20,.72) 44%, rgba(10,15,20,.92) 100%); }
+  .hero-content { border: 1px solid rgba(255,255,255,.16); border-radius: 1rem; background: rgba(13,19,24,.48); padding: 1.25rem; box-shadow: 0 18px 50px rgba(0,0,0,.28); backdrop-filter: blur(5px); }
+  .hero-title { font-size: clamp(2rem, 9.6vw, 3rem); line-height: .98; text-wrap: balance; }
+  .hero-badge { padding: .45rem .65rem; font-size: .68rem; line-height: 1.15; }
+  .section-band { padding-top: 3.5rem; padding-bottom: 3.5rem; }
+  .section-title { text-wrap: balance; }
+  .technical-table-wrap { margin-left: -1rem; margin-right: -1rem; border-left: 0; border-right: 0; }
+  .interactive-product-card > div:last-child { min-height: 190px; }
+  footer { padding-bottom: calc(5rem + env(safe-area-inset-bottom)) !important; }
   .about-video-frame { height: 55vh; min-height: 360px; }
   .sound-toggle-btn { right: 16px; top: 16px; padding: 9px 14px; font-size: 12px; }
   .story-visual { min-height: 470px; }
