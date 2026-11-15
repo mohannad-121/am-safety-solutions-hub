@@ -798,6 +798,9 @@ function ContentCenter({
                     Metadata, canonical, schema and robots fields remain locked
                     unless your role permits SEO edits.
                   </p>
+                  <p className="mt-2 text-xs text-slate-500">
+                    Canonical is automatically generated from the approved public URL. Wrong-domain, relative, uppercase and trailing-slash variants are rejected by the SEO audit.
+                  </p>
                   <p className="mt-2 text-xs font-medium">
                     {canEditSeo(user.role)
                       ? "SEO editing permitted with audit logging."
@@ -1310,6 +1313,7 @@ function ImageCenter({
             </div>
           ))}
         </div>
+        <p className="mt-2 text-xs text-slate-500">Preview only. Google evaluates the real responsive mobile page; run Production Mobile QA before publishing layout-sensitive changes.</p>
         <div className="mt-5 flex flex-wrap gap-2">
           <Button
             variant="outline"

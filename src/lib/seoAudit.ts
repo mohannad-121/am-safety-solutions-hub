@@ -1,5 +1,8 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { buildCanonicalUrl } from "@/lib/canonical";
+import { remoteCmsEnabled } from "@/lib/cms";
+import { clusterForPath } from "@/lib/topicClusters";
 
 const client = supabase as unknown as SupabaseClient;
 
@@ -11,7 +14,12 @@ export type SeoCategory =
   | "structured"
   | "internal"
   | "performance"
-  | "aiReadiness";
+  | "aiReadiness"
+  | "canonical"
+  | "eeat"
+  | "helpfulContent"
+  | "topicClusters"
+  | "conversion";
 export type SeoIssue = {
   id: string;
   pageUrl: string;
@@ -29,6 +37,15 @@ export type SeoAuditReport = {
   categoryScores: Record<SeoCategory, number | null>;
   pagesChecked: number;
   issues: SeoIssue[];
+  measurementCoverage: number;
+  unmeasuredCategories: SeoCategory[];
+  categoryEvidence: Record<SeoCategory, {
+    measured: boolean;
+    source: string;
+    findings: number;
+    pagesAffected: number;
+    requirementsMissing: number;
+  }>;
   integrations: {
     searchConsole: boolean;
     pageSpeed: boolean;
@@ -45,15 +62,24 @@ export type SeoTask = SeoIssue & {
 const historyKey = "ambs_seo_audit_history_v1";
 const taskKey = "ambs_seo_tasks_v1";
 const weights: Record<SeoCategory, number> = {
-  technical: 20,
-  onPage: 20,
-  content: 15,
-  image: 10,
+  technical: 10,
+  onPage: 15,
+  content: 10,
+  image: 5,
   structured: 10,
   internal: 10,
-  performance: 10,
+  performance: 5,
   aiReadiness: 5,
+  canonical: 10,
+  eeat: 5,
+  helpfulContent: 5,
+  topicClusters: 5,
+  conversion: 5,
 };
+
+function envEnabled(value: unknown) {
+  return typeof value === "string" && value.trim().toLowerCase() === "true";
+}
 
 function issue(
   pageUrl: string,
@@ -76,15 +102,24 @@ function issue(
 
 function scoreFor(category: SeoCategory, pages: number, issues: SeoIssue[]) {
   if (!pages) return 0;
-  const penalty = issues
-    .filter((item) => item.category === category)
-    .reduce(
-      (total, item) =>
-        total +
-        (item.severity === "urgent" ? 18 : item.severity === "warning" ? 9 : 3),
-      0,
-    );
-  return Math.max(0, Math.round(100 - penalty / pages));
+  const findings = issues.filter((item) => item.category === category);
+  if (!findings.length) return 100;
+  const severityRank = { suggestion: 1, warning: 2, urgent: 3 } as const;
+  const highestSeverityByPage = new Map<string, SeoIssue["severity"]>();
+  findings.forEach((finding) => {
+    const current = highestSeverityByPage.get(finding.pageUrl);
+    if (!current || severityRank[finding.severity] > severityRank[current]) highestSeverityByPage.set(finding.pageUrl, finding.severity);
+  });
+  const weightedAffectedPages = [...highestSeverityByPage.values()].reduce(
+    (total, severity) => total + (severity === "urgent" ? 100 : severity === "warning" ? 45 : 15),
+    0,
+  );
+  const duplicateFindingPenalty = Math.max(0, findings.length - highestSeverityByPage.size) * 2;
+  let score = Math.max(0, Math.round(100 - weightedAffectedPages / pages - duplicateFindingPenalty));
+  if (findings.some((item) => item.severity === "urgent")) score = Math.min(score, 69);
+  else if (findings.some((item) => item.severity === "warning")) score = Math.min(score, 89);
+  else score = Math.min(score, 99);
+  return score;
 }
 
 export function readSeoAuditHistory(): SeoAuditReport[] {
@@ -99,9 +134,8 @@ export function readSeoAuditHistory(): SeoAuditReport[] {
 
 export async function persistSeoAudit(report: SeoAuditReport) {
   const history = [report, ...readSeoAuditHistory()].slice(0, 30);
-  localStorage.setItem(historyKey, JSON.stringify(history));
-  try {
-    await client.from("seo_audits").insert({
+  if (remoteCmsEnabled) {
+    const result = await client.from("seo_audits").insert({
       id: report.id,
       source_url: report.sourceUrl,
       overall_score: report.overallScore,
@@ -111,9 +145,9 @@ export async function persistSeoAudit(report: SeoAuditReport) {
       integrations: report.integrations,
       created_at: report.createdAt,
     });
-  } catch {
-    /* Local history remains available until the migration is applied. */
+    if (result.error) throw new Error(`SEO audit could not be persisted: ${result.error.message}`);
   }
+  localStorage.setItem(historyKey, JSON.stringify(history));
   return history;
 }
 
@@ -134,25 +168,25 @@ export async function createSeoTask(
   } catch {
     // Start a clean local queue when old browser data is invalid.
   }
+  if (remoteCmsEnabled) {
+    const result = await client.from("seo_tasks").insert({
+      id: task.id,
+      audit_id: auditId,
+      page_url: task.pageUrl,
+      category: task.category,
+      priority: task.severity,
+      issue: task.title,
+      suggested_fix: task.suggestedAction,
+      status: "new",
+      source: "manual_audit",
+      created_by: userId,
+    });
+    if (result.error) throw new Error(`SEO task could not be saved to Supabase: ${result.error.message}`);
+  }
   localStorage.setItem(
     taskKey,
     JSON.stringify([task, ...tasks.filter((item) => item.id !== task.id)].slice(0, 500)),
   );
-  const result = await client.from("seo_tasks").insert({
-    id: task.id,
-    audit_id: auditId,
-    page_url: task.pageUrl,
-    category: task.category,
-    priority: task.severity,
-    issue: task.title,
-    suggested_fix: task.suggestedAction,
-    status: "new",
-    source: "manual_audit",
-    created_by: userId,
-  });
-  if (result.error && !import.meta.env.DEV) {
-    throw new Error(`SEO task could not be saved to Supabase: ${result.error.message}`);
-  }
   return task;
 }
 
@@ -189,6 +223,8 @@ export async function runSeoAudit(
     node.textContent?.trim(),
   ).filter(Boolean) as string[];
   const issues: SeoIssue[] = [];
+  const sitemapPaths = new Set(urls.map((url) => new URL(url).pathname.replace(/\/$/, "") || "/"));
+  const inboundCounts = new Map<string, number>([...sitemapPaths].map((path) => [path, 0]));
 
   for (let index = 0; index < urls.length; index += 1) {
     const pageUrl = absoluteUrl(urls[index], origin);
@@ -233,14 +269,47 @@ export async function runSeoAudit(
       const headings = document.querySelectorAll("h1");
       const text = document.body.textContent?.replace(/\s+/g, " ").trim() || "";
       const images = Array.from(document.images);
+      const pathname = new URL(pageUrl).pathname;
       const internalLinks = Array.from(
         document.querySelectorAll<HTMLAnchorElement>('a[href^="/"]'),
       );
+      internalLinks.forEach((link) => {
+        const targetPath = new URL(link.getAttribute("href") || "/", pageUrl).pathname.replace(/\/$/, "") || "/";
+        if (sitemapPaths.has(targetPath) && targetPath !== pathname) inboundCounts.set(targetPath, (inboundCounts.get(targetPath) || 0) + 1);
+      });
+      const absoluteInternalLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]"))
+        .map((link) => link.href)
+        .filter((href) => { try { return new URL(href, pageUrl).origin === new URL(pageUrl).origin; } catch { return false; } });
       const schemaNodes = Array.from(
         document.querySelectorAll<HTMLScriptElement>(
           'script[type="application/ld+json"]',
         ),
       );
+      const parsedSchemas: unknown[] = [];
+      let invalidSchemaBlocks = 0;
+      for (const node of schemaNodes) {
+        try { parsedSchemas.push(JSON.parse(node.textContent || "")); }
+        catch { invalidSchemaBlocks += 1; }
+      }
+      const collectSchemaTypes = (value: unknown): string[] => {
+        if (Array.isArray(value)) return value.flatMap(collectSchemaTypes);
+        if (!value || typeof value !== "object") return [];
+        const record = value as Record<string, unknown>;
+        const own = Array.isArray(record["@type"]) ? (record["@type"] as unknown[]).map(String) : typeof record["@type"] === "string" ? [record["@type"]] : [];
+        return [...own, ...collectSchemaTypes(record["@graph"])];
+      };
+      const collectSchemaUrls = (value: unknown): string[] => {
+        if (Array.isArray(value)) return value.flatMap(collectSchemaUrls);
+        if (!value || typeof value !== "object") return [];
+        const record = value as Record<string, unknown>;
+        const type = record["@type"];
+        const pageEntity = typeof type === "string" && ["WebPage", "Article", "BlogPosting"].includes(type);
+        const own = [record.mainEntityOfPage, pageEntity ? record.url : undefined].filter((entry): entry is string => typeof entry === "string");
+        return [...own, ...collectSchemaUrls(record["@graph"])];
+      };
+      const schemaTypes = parsedSchemas.flatMap(collectSchemaTypes);
+      const schemaUrls = parsedSchemas.flatMap(collectSchemaUrls);
+      const articlePage = pathname.startsWith("/articles/") || (pathname.startsWith("/resources/") && !["/resources/technical-library", "/resources/risk-assessment-method-statement"].includes(pathname));
 
       if (!title)
         issues.push(
@@ -286,6 +355,11 @@ export async function runSeoAudit(
             "Add a self-referencing canonical after confirming the preferred URL.",
           ),
         );
+      else {
+        const expectedCanonical = new URL(pageUrl); expectedCanonical.search = ""; expectedCanonical.hash = ""; expectedCanonical.pathname = expectedCanonical.pathname === "/" ? "/" : expectedCanonical.pathname.toLowerCase().replace(/\/$/, "");
+        if (canonical !== expectedCanonical.toString()) issues.push(issue(pageUrl, "canonical", "urgent", "Canonical differs from sitemap URL", `Found ${canonical}; expected ${expectedCanonical.toString()}.`, "Align the self canonical, sitemap, Open Graph and schema URL."));
+        if (!/^https:\/\//.test(canonical)) issues.push(issue(pageUrl, "canonical", "urgent", "Canonical is not HTTPS", canonical, "Use the approved HTTPS master URL."));
+      }
       if (/noindex/i.test(robots))
         issues.push(
           issue(
@@ -333,32 +407,24 @@ export async function runSeoAudit(
             ),
           ),
         );
-      if (!schemaNodes.length)
+      if (!schemaTypes.includes("WebPage"))
         issues.push(
           issue(
             pageUrl,
             "structured",
             "warning",
-            "Structured data not detected",
-            "No JSON-LD block was found in prerendered HTML.",
-            "Add only schema that matches visible page content.",
+            "Missing WebPage schema",
+            "No WebPage JSON-LD type was found in prerendered HTML.",
+            "Create a WebPage schema draft from the real page title, description, canonical and breadcrumb.",
           ),
         );
-      for (const node of schemaNodes)
-        try {
-          JSON.parse(node.textContent || "");
-        } catch {
-          issues.push(
-            issue(
-              pageUrl,
-              "structured",
-              "urgent",
-              "Invalid JSON-LD",
-              "A structured-data block is not valid JSON.",
-              "Repair and validate the block before publishing.",
-            ),
-          );
-        }
+      if (articlePage && !schemaTypes.some((type) => type === "Article" || type === "BlogPosting")) issues.push(issue(pageUrl, "structured", "warning", "Missing Article schema", "This article or resource page has no Article or BlogPosting JSON-LD type.", "Create a draft using only the real title, description, author/publisher and available dates."));
+      if (!articlePage && schemaTypes.some((type) => type === "Article" || type === "BlogPosting")) issues.push(issue(pageUrl, "structured", "urgent", "Schema needs review: wrong page type", "Article schema appears on a non-article page.", "Review the source block manually; do not delete valid schema automatically."));
+      if (invalidSchemaBlocks) issues.push(issue(pageUrl, "structured", "urgent", "Invalid JSON-LD", `${invalidSchemaBlocks} structured-data block(s) are not valid JSON.`, "Repair only the invalid block in the editor and validate before publishing."));
+      const duplicateSchemaTypes = [...new Set(schemaTypes.filter((type, index) => schemaTypes.indexOf(type) !== index && ["Organization", "WebPage", "Article", "BlogPosting"].includes(type)))];
+      if (duplicateSchemaTypes.length) issues.push(issue(pageUrl, "structured", "warning", "Schema needs review: duplicate schema", `Duplicate high-level schema types: ${duplicateSchemaTypes.join(", ")}.`, "Review identifiers and remove only genuinely duplicate or conflicting blocks."));
+      const conflictingSchemaUrls = schemaUrls.filter((value) => { try { return buildCanonicalUrl(value) !== buildCanonicalUrl(canonical || pageUrl); } catch { return true; } });
+      if (conflictingSchemaUrls.length) issues.push(issue(pageUrl, "structured", "urgent", "Schema needs review: conflicting canonical", `Structured data contains ${conflictingSchemaUrls.length} URL value(s) that do not align with the page canonical.`, "Correct only the conflicting schema URLs after manual review."));
       if (!internalLinks.length)
         issues.push(
           issue(
@@ -370,6 +436,22 @@ export async function runSeoAudit(
             "Suggest relevant product or resource links for editorial review.",
           ),
         );
+      const genericAnchors = internalLinks.filter((link) => /^(learn more|click here|read more|view|more)$/i.test(link.textContent?.trim() || ""));
+      if (genericAnchors.length) issues.push(issue(pageUrl, "internal", "warning", "Generic internal-link anchors", `${genericAnchors.length} internal link(s) use non-descriptive anchor text.`, "Replace generic labels with text that names the destination or action."));
+      const nonSitemapTargets = internalLinks.map((link) => new URL(link.getAttribute("href") || "/", pageUrl).pathname.replace(/\/$/, "") || "/").filter((target) => !sitemapPaths.has(target) && !target.startsWith("/admin"));
+      if (nonSitemapTargets.length) issues.push(issue(pageUrl, "internal", "warning", "Internal targets missing from sitemap", `${new Set(nonSitemapTargets).size} linked route(s) are not declared in the public sitemap.`, "Confirm each target is indexable, intentionally redirected or remove the link."));
+      const cluster = clusterForPath(pathname);
+      if (cluster) {
+        const expectedPaths = [cluster.pillar, ...cluster.supporting, ...cluster.products, ...cluster.resources].map((link) => link.path).filter((path) => path !== pathname);
+        const linkedPaths = new Set(internalLinks.map((link) => new URL(link.getAttribute("href") || "/", pageUrl).pathname));
+        const missingClusterLinks = expectedPaths.filter((path) => !linkedPaths.has(path));
+        if (!document.querySelector(`[data-topic-cluster="${cluster.id}"]`)) issues.push(issue(pageUrl, "topicClusters", "warning", "Topic cluster block is not visible", `The ${cluster.label} page has no visible cluster navigation.`, "Render the shared related-cluster section on this public page."));
+        if (missingClusterLinks.length) issues.push(issue(pageUrl, "topicClusters", "warning", "Topic cluster links are incomplete", `Missing ${missingClusterLinks.length} declared cluster link(s).`, "Add crawlable descriptive links between the pillar, supporting, product and resource pages."));
+      } else if (absoluteInternalLinks.length < 3) issues.push(issue(pageUrl, "topicClusters", "suggestion", "Limited topic-cluster connections", `Only ${absoluteInternalLinks.length} internal links were detected.`, "Add editorially relevant links to the pillar, supporting guidance and conversion route."));
+      if (!/written by|technical review|reviewed by|content review/i.test(text)) issues.push(issue(pageUrl, "eeat", "suggestion", "Authorship or review signal not visible", "No visible organizational authorship or technical-review signal was detected.", "Add a truthful author/review owner and review policy link without inventing credentials."));
+      const helpfulContentEligible = /^\/(?:products|articles|resources|standards|safety|temporary|loading|vertical|work-at-height|what-is|edge-protection|engineering|high-risk|steel-fabrication)/.test(pathname);
+      if (helpfulContentEligible && !/short answer|frequently asked|checklist|what project teams|what you need|required sections|before installation|scope review|applications/i.test(text)) issues.push(issue(pageUrl, "helpfulContent", "suggestion", "Helpful-content structure can improve", "No concise answer, checklist, practical application or FAQ marker was detected.", "Review whether a concise answer and task-focused checks would improve the page."));
+      if (!absoluteInternalLinks.some((href) => /\/quote|\/contact/.test(href))) issues.push(issue(pageUrl, "conversion", "suggestion", "No clear enquiry path detected", "The page has no internal link to quote or contact.", "Add a relevant project enquiry path without weakening technical content."));
       if (
         !/FAQPage|Product|Article|LocalBusiness|Organization/.test(
           schemaNodes.map((node) => node.textContent).join(" "),
@@ -399,6 +481,10 @@ export async function runSeoAudit(
     }
   }
 
+  inboundCounts.forEach((count, path) => {
+    if (count === 0 && path !== "/") issues.push(issue(new URL(path, origin).toString(), "internal", "urgent", "Orphan sitemap page", "No crawlable internal link from another sitemap page was detected.", "Add a descriptive contextual, navigation or cluster link to this page."));
+  });
+
   const categories = Object.keys(weights) as SeoCategory[];
   const categoryScores = Object.fromEntries(
     categories.map((category) => [
@@ -415,13 +501,23 @@ export async function runSeoAudit(
     (total, category) => total + weights[category],
     0,
   );
+  const totalWeight = categories.reduce((total, category) => total + weights[category], 0);
   const overallScore = Math.round(
-    measured.reduce(
-      (total, category) =>
-        total + (categoryScores[category] || 0) * weights[category],
+    categories.reduce(
+      (total, category) => total + (categoryScores[category] || 0) * weights[category],
       0,
-    ) / measuredWeight,
+    ) / totalWeight,
   );
+  const categoryEvidence = Object.fromEntries(categories.map((category) => {
+    const categoryIssues = issues.filter((item) => item.category === category);
+    return [category, {
+      measured: categoryScores[category] !== null,
+      source: category === "performance" ? "PageSpeed, Lighthouse or CrUX integration required" : "Public sitemap HTML audit",
+      findings: categoryIssues.length,
+      pagesAffected: new Set(categoryIssues.map((item) => item.pageUrl)).size,
+      requirementsMissing: categoryIssues.length + (categoryScores[category] === null ? 1 : 0),
+    }];
+  })) as SeoAuditReport["categoryEvidence"];
   return {
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
@@ -430,11 +526,14 @@ export async function runSeoAudit(
     categoryScores,
     pagesChecked: urls.length,
     issues,
+    measurementCoverage: Math.round(measuredWeight / totalWeight * 100),
+    unmeasuredCategories: categories.filter((category) => categoryScores[category] === null),
+    categoryEvidence,
     integrations: {
-      searchConsole: Boolean(import.meta.env.VITE_GSC_CONNECTED),
-      pageSpeed: Boolean(import.meta.env.VITE_PAGESPEED_CONNECTED),
-      openAi: Boolean(import.meta.env.VITE_AI_SUGGESTIONS_CONNECTED),
-      competitor: Boolean(import.meta.env.VITE_COMPETITOR_AUDIT_CONNECTED),
+      searchConsole: envEnabled(import.meta.env.VITE_GSC_CONNECTED),
+      pageSpeed: envEnabled(import.meta.env.VITE_PAGESPEED_CONNECTED),
+      openAi: envEnabled(import.meta.env.VITE_AI_SUGGESTIONS_CONNECTED),
+      competitor: envEnabled(import.meta.env.VITE_COMPETITOR_AUDIT_CONNECTED),
     },
   };
 }

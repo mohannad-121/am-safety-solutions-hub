@@ -16,6 +16,7 @@ dist-ssr
 .recovery-temp/
 .video-source/
 qa-artifacts/
+.lighthouseci/
 *.tsbuildinfo
 supabase/.temp/
 

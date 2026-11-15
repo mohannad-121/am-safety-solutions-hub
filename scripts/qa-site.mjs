@@ -38,7 +38,9 @@ async function inspectPage(page, route, viewportLabel) {
   page.on("requestfailed", onRequestFailed);
 
   const response = await page.goto(`${baseURL}${route}`, { waitUntil: "domcontentloaded", timeout: 30_000 });
-  await page.waitForTimeout(250);
+  await page.locator("h1").first().waitFor({ state: "visible", timeout: 5_000 }).catch(() => undefined);
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(50);
   if (!response?.ok()) record(`${viewportLabel} ${route}: HTTP ${response?.status() || "no response"}`);
 
   const result = await page.evaluate(() => ({
@@ -96,11 +98,14 @@ async function inspectVideos(page) {
     if (!details.poster) record(`${config.route}: missing poster`);
     if (!details.paused) record(`${config.route}: video should wait for hover/tap`);
 
-    await page.locator(config.frame).hover();
-    await page.waitForTimeout(700);
+    const supportsHover = await page.evaluate(() => window.matchMedia("(hover: hover) and (pointer: fine)").matches);
+    if (supportsHover) await page.locator(config.frame).hover();
+    else await page.locator(config.frame).click({ position: { x: 10, y: 10 } });
+    await page.waitForTimeout(1800);
     const playing = await video.evaluate((element) => !element.paused && element.currentTime > 0);
     if (!playing) record(`${config.route}: video did not play on hover`);
-    await page.mouse.move(0, 0);
+    if (supportsHover) await page.mouse.move(0, 0);
+    else await page.locator(config.frame).click({ position: { x: 10, y: 10 } });
     await page.waitForTimeout(200);
     const pausedAt = await video.evaluate((element) => ({ paused: element.paused, time: element.currentTime }));
     await page.waitForTimeout(300);

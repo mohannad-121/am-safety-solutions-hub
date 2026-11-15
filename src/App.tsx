@@ -6,6 +6,8 @@ import { edgeTopics } from "./data/ambs";
 import { StickyConversionBar } from "@/components/StickyConversionBar";
 import { CmsImageBridge } from "@/components/CmsImageBridge";
 import { CmsContentBridge } from "@/components/CmsContentBridge";
+import { UrlNormalizer } from "@/components/UrlNormalizer";
+import { AccessibilityEnhancements } from "@/components/AccessibilityEnhancements";
 
 const Index = lazy(() => import("./pages/Index"));
 const About = lazy(() => import("./pages/About"));
@@ -29,6 +31,11 @@ const Faq = lazy(() => import("./pages/Faq"));
 const EdgeProtectionTypes = lazy(() => import("./pages/EdgeProtectionTypes"));
 const TechnicalSeoLanding = lazy(() => import("./pages/TechnicalSeoLanding"));
 const RamsResources = lazy(() => import("./pages/RamsResources"));
+const AuthorityResource = lazy(() => import("./pages/AuthorityResource"));
+const EditorialPolicy = lazy(() => import("./pages/EditorialPolicy"));
+const Industries = lazy(() => import("./pages/Industries"));
+const Offers = lazy(() => import("./pages/Offers"));
+const TechnicalLibrary = lazy(() => import("./pages/TechnicalLibrary"));
 
 const App = () => (
   <>
@@ -37,12 +44,13 @@ const App = () => (
         <CmsImageBridge />
         <CmsContentBridge />
         <ScrollToTop />
+        <UrlNormalizer />
+        <AccessibilityEnhancements />
         <Suspense fallback={<div className="flex min-h-[50vh] items-center justify-center bg-[#20262b] text-sm font-bold uppercase text-white">Loading AM Building Solutions...</div>}><Routes>
           <Route path="/" element={<Index />} />
           <Route path="/about" element={<About />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:category" element={<Products />} />
-          <Route path="/products/:category/:id" element={<Products />} />
           <Route path="/engineering-solutions" element={<CapabilityPage />} />
           <Route path="/high-risk-products" element={<CapabilityPage />} />
           <Route path="/steel-fabrication" element={<CapabilityPage />} />
@@ -62,11 +70,13 @@ const App = () => (
           <Route path="/resources/edge-protection-risk-assessment-method-statement" element={<RamsResources />} />
           <Route path="/resources/loading-platform-risk-assessment-method-statement" element={<RamsResources />} />
           <Route path="/resources/how-to-make-method-statement" element={<RamsResources />} />
-          <Route path="/standards" element={<StandardEN13374 />} />
+          <Route path="/resources/technical-library" element={<TechnicalLibrary />} />
+          <Route path="/resources/:slug" element={<AuthorityResource />} />
+          <Route path="/standards" element={<Navigate to="/standards/en-13374-edge-protection" replace />} />
           <Route path="/standards/en-13374-edge-protection" element={<StandardEN13374 />} />
-          <Route path="/en-13374-edge-protection" element={<StandardEN13374 />} />
-          <Route path="/bs-en-13374-2025-edge-protection" element={<StandardEN13374 />} />
-          <Route path="/certifications" element={<StandardEN13374 />} />
+          <Route path="/en-13374-edge-protection" element={<Navigate to="/standards/en-13374-edge-protection" replace />} />
+          <Route path="/bs-en-13374-2025-edge-protection" element={<Navigate to="/standards/en-13374-edge-protection" replace />} />
+          <Route path="/certifications" element={<Navigate to="/standards/en-13374-edge-protection" replace />} />
           {edgeTopics.filter(topic => !topic.slug.includes("13374")).map(topic => <Route key={topic.slug} path={`/${topic.slug}`} element={<EdgeProtection />} />)}
           <Route path="/edge-protection-training" element={<Training />} />
           <Route path="/edge-protection-downloads" element={<Downloads />} />
@@ -77,15 +87,16 @@ const App = () => (
           <Route path="/articles/:slug" element={<ArticleDetail />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/editorial-policy" element={<EditorialPolicy />} />
           <Route path="/faq" element={<Faq />} />
-          <Route path="/edge-protection-faqs" element={<Faq />} />
+          <Route path="/edge-protection-faqs" element={<Navigate to="/faq" replace />} />
           {/* Admin Routes */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/*" element={<AdminDashboard />} />
-          {/* Placeholder routes - will be built out */}
-          <Route path="/industries" element={<About />} />
+          <Route path="/industries" element={<Industries />} />
+          <Route path="/offers" element={<Offers />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes></Suspense>

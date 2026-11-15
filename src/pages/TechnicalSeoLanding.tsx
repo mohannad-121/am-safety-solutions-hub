@@ -3,6 +3,8 @@ import { ArrowRight, CheckCircle2, ClipboardCheck, FileText, ShieldCheck } from 
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { SeoHead } from "@/components/SeoHead";
+import { TechnicalReviewBlock } from "@/components/TechnicalReviewBlock";
+import { getPublicSiteUrl } from "@/lib/canonical";
 
 type Faq = readonly [string, string];
 type LinkItem = readonly [string, string];
@@ -154,7 +156,7 @@ const pages: Record<string, PageConfig> = {
 };
 
 function pageSchema(path: string, page: PageConfig) {
-  const base = "https://www.ambs.ae";
+  const base = getPublicSiteUrl();
   const primary = page.article ? {
     "@context": "https://schema.org", "@type": "Article", headline: page.title, description: page.description,
     author: { "@type": "Organization", name: "AM Building Solutions DWC LLC", url: base },
@@ -178,7 +180,7 @@ function pageSchema(path: string, page: PageConfig) {
 export default function TechnicalSeoLanding() {
   const { pathname } = useLocation();
   const page = pages[pathname] ?? pages["/safety-net-uae"];
-  return <div className="flex min-h-screen flex-col"><SeoHead title={page.metaTitle} description={page.description} path={pathname} schema={pageSchema(pathname, page)} image={page.image} ogType={page.article ? "article" : "website"}/><Navbar/><main className="flex-1">
+  return <div className="flex min-h-screen flex-col"><SeoHead title={page.metaTitle} description={page.description} path={pathname} schema={pageSchema(pathname, page)} image={page.image} ogType={page.article ? "article" : "website"}/><Navbar/><main className="flex-1"><TechnicalReviewBlock/>
     <section className="relative isolate overflow-hidden bg-[#20262b] text-white"><img src={page.image} alt={`${page.title} by AM Building Solutions`} className="absolute inset-0 -z-20 h-full w-full object-cover opacity-35"/><div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#111]/95 via-[#111]/80 to-[#111]/35"/><div className="container-wide py-20 md:py-24"><nav aria-label="Breadcrumb" className="text-sm text-white/60"><Link to="/">Home</Link> / <Link to={page.article ? "/articles" : "/products"}>{page.article ? "Articles" : "Solutions"}</Link> / {page.title}</nav><p className="eyebrow mt-8 text-[#F9A900]">{page.eyebrow}</p><h1 className="hero-title mt-4">{page.title}</h1><p className="mt-6 max-w-4xl text-lg leading-8 text-white/75">{page.description}</p><div className="mt-8 flex flex-wrap gap-3"><Link to="/quote" className="ambs-button">Request Project Review <ArrowRight size={17}/></Link><Link to="/contact" className="hero-secondary-button">Contact AMBS</Link></div></div></section>
     <section className="section-band bg-white"><div className="container-wide grid gap-10 lg:grid-cols-[.85fr_1.15fr]"><div><p className="eyebrow text-accent">Short answer</p><h2 className="section-title mt-3">What project teams need to know</h2><p className="mt-5 text-lg leading-8 text-muted-foreground">{page.shortAnswer}</p><span className="standard-tag mt-6 inline-flex">{page.standard}</span></div><div className="grid gap-4 sm:grid-cols-2">{page.insights.map(([title, copy])=><article key={title} className="rounded-md border border-border bg-[#f5f6f7] p-5"><ShieldCheck className="text-accent"/><h3 className="mt-4 font-display text-xl font-bold uppercase">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{copy}</p></article>)}</div></div></section>
     <section className="section-band bg-[#f3f4f4]"><div className="container-wide grid gap-10 lg:grid-cols-2"><div><p className="eyebrow text-accent">Technical review</p><h2 className="section-title mt-3">Site information and checks</h2><div className="mt-7 grid gap-3">{page.checks.map(item=><div key={item} className="flex gap-3 rounded-md border border-border bg-white p-4 font-semibold"><ClipboardCheck className="shrink-0 text-accent" size={20}/>{item}</div>)}</div></div><div><p className="eyebrow text-accent">Workflow</p><h2 className="section-title mt-3">From enquiry to handover</h2><ol className="mt-7 grid gap-3">{page.workflow.map((step,index)=><li key={step} className="flex gap-4 rounded-md border border-border bg-white p-4"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent text-sm font-bold text-white">{index+1}</span><span className="leading-7 text-muted-foreground">{step}</span></li>)}</ol></div></div></section>

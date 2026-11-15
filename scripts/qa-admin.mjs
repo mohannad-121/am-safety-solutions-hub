@@ -5,6 +5,9 @@ import path from "node:path";
 const baseURL = process.env.QA_BASE_URL || "http://127.0.0.1:4173";
 const screenshotDir = path.resolve("docs/admin-qa-screenshots");
 const reportPath = path.resolve("docs/admin-qa-report.md");
+const adminEmail = process.env.QA_ADMIN_EMAIL;
+const adminPassword = process.env.QA_ADMIN_PASSWORD;
+if (!adminEmail || !adminPassword) throw new Error("QA_ADMIN_EMAIL and QA_ADMIN_PASSWORD are required for authenticated admin QA. The harness does not bypass admin authentication.");
 const modules = [
   "Dashboard", "Website Pages", "Products & Solutions", "Projects / Case Studies", "Training Center",
   "Resources", "Documents Center", "Articles", "FAQs", "Media Library", "Image Locator", "SEO Center", "Leads / Quote Requests",
@@ -16,16 +19,20 @@ const results = [];
 const failure = (area, detail) => results.push({ area, status: "FAIL", detail });
 const pass = (area, detail) => results.push({ area, status: "PASS", detail });
 
+async function signIn(page) {
+  await page.goto(`${baseURL}/admin/login`, { waitUntil: "domcontentloaded" });
+  await page.getByLabel("Email").fill(adminEmail);
+  await page.getByLabel("Password").fill(adminPassword);
+  await page.getByRole("button", { name: "Sign In", exact: true }).click();
+  await page.waitForURL(/\/admin\/(?:dashboard|seo)/, { timeout: 20_000 });
+}
+
 const browser = await chromium.launch({ headless: true, channel: "chrome" });
 try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 960 } });
   const page = await context.newPage();
   page.on("console", message => { if (message.type() === "error" && !message.text().includes("Failed to load resource")) failure("Console", message.text()); });
-  await page.goto(`${baseURL}/admin/login`, { waitUntil: "domcontentloaded" });
-  await page.evaluate(() => {
-    localStorage.setItem("admin_authenticated", "true");
-    localStorage.setItem("admin_user", JSON.stringify({ id: "qa-admin", email: "qa@ambs.ae", role: "super_admin" }));
-  });
+  await signIn(page);
   await page.goto(`${baseURL}/admin/dashboard`, { waitUntil: "domcontentloaded" });
   await page.getByRole("heading", { name: "Dashboard", exact: true }).waitFor();
   const robots = await page.locator('meta[name="robots"]').getAttribute("content");
@@ -71,11 +78,7 @@ try {
 
   const mediaContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const mobile = await mediaContext.newPage();
-  await mobile.goto(`${baseURL}/admin/login`, { waitUntil: "domcontentloaded" });
-  await mobile.evaluate(() => {
-    localStorage.setItem("admin_authenticated", "true");
-    localStorage.setItem("admin_user", JSON.stringify({ id: "qa-media", email: "media@ambs.ae", role: "media_manager" }));
-  });
+  await signIn(mobile);
   await mobile.goto(`${baseURL}/admin/dashboard`, { waitUntil: "domcontentloaded" });
   await mobile.getByLabel("Admin section").selectOption("Image Locator");
   const mobileOverflow = await mobile.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);

@@ -19,8 +19,38 @@
     --ambs-white: #ffffff;
     --ambs-black: #111827;
     --ambs-border: #d9dee3;
-    --font-main: Barlow, Inter, "Helvetica Neue", Arial, sans-serif;
-    --font-display: "Barlow Condensed", Barlow, Arial, sans-serif;
+    --font-display: "Google Sans Flex", "Google Sans", "Google Sans Text", Arial, sans-serif;
+    --font-body: "Google Sans Text", "Google Sans", Arial, sans-serif;
+    --font-ui: "Google Sans Text", "Google Sans", Arial, sans-serif;
+    --font-mono: "Google Sans Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --font-main: var(--font-body);
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --line-height-display: 0.98;
+    --line-height-heading: 1.08;
+    --line-height-subheading: 1.18;
+    --line-height-body: 1.55;
+    --line-height-ui: 1.35;
+    --line-height-caption: 1.35;
+    --tracking-display: 0;
+    --tracking-heading: 0;
+    --tracking-subheading: 0;
+    --tracking-body: 0;
+    --tracking-ui: 0;
+    --tracking-badge: 0.08em;
+    --text-xs: 0.75rem;
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.25rem;
+    --text-5xl: 3rem;
+    --text-6xl: 3.75rem;
+    --text-hero: 6.5rem;
     /* Core Brand Colors */
     --background: 210 20% 98%;
     --foreground: 215 25% 12%;
@@ -148,12 +178,22 @@
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-main);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    line-height: var(--line-height-body);
+  }
+
+  button, input, textarea, select, label, table, th, td, nav, aside, header, footer, dialog {
+    font-family: inherit;
+  }
+
+  code, pre, kbd, samp {
+    font-family: var(--font-mono);
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold;
     font-family: var(--font-display);
-    letter-spacing: 0;
+    letter-spacing: var(--tracking-heading);
+    text-transform: none !important;
   }
 }
 
@@ -186,6 +226,12 @@
   .ambs-text-link { @apply inline-flex items-center gap-2 font-bold text-accent hover:underline; }
   .eyebrow { @apply text-xs font-bold uppercase; letter-spacing: .08em; }
   .font-display { font-family: var(--font-display); }
+  section[class~="text-white"] [class~="text-accent"], section[class~="text-primary-foreground"] [class~="text-accent"] { color: #F9A900 !important; }
+  section[class~="text-white"] [class~="text-muted-foreground"] { color: rgba(255,255,255,.76) !important; }
+  [class~="bg-accent"] [class~="text-white/80"] { color: #ffffff !important; }
+  [class~="bg-[#C51A14]"] [class~="text-white/80"] { color: #ffffff !important; }
+  [class~="bg-accent/10"] [class~="text-muted-foreground"] { color: #4b5563 !important; }
+  footer [class~="text-white/45"] { color: rgba(255,255,255,.62) !important; }
   .section-band { @apply py-16 md:py-20 lg:py-24; }
   .section-title { @apply font-display text-3xl font-extrabold uppercase leading-[1.02] md:text-4xl; }
   .hero-title { @apply font-display text-4xl font-extrabold uppercase leading-[.98] text-white sm:text-5xl md:text-6xl lg:text-[64px]; max-width: 940px; text-shadow: 0 2px 12px rgba(0,0,0,.65); }

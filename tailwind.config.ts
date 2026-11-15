@@ -79,8 +79,9 @@ export default {
         warning: "hsl(var(--warning))",
       },
       fontFamily: {
-        sans: ["Barlow", "Inter", "system-ui", "sans-serif"],
-        display: ["Barlow Condensed", "Barlow", "system-ui", "sans-serif"],
+        sans: ["Google Sans Text", "Google Sans", "Arial", "sans-serif"],
+        display: ["Google Sans Flex", "Google Sans", "Arial", "sans-serif"],
+        mono: ["Google Sans Code", "ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
       },
       borderRadius: {
         lg: "var(--radius)",

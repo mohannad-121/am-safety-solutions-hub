@@ -1,6 +1,6 @@
 # AMBS SEO and Competitor Status Audit
 
-Updated: November 14, 2026
+Updated: November 15, 2026
 
 ## Executive Rating
 
@@ -19,7 +19,7 @@ The ratings are repository and public-page estimates, not Google ranking guarant
 | Unique metadata and canonicals | EXISTS | Central `SeoHead` utility across public pages. |
 | Open Graph and Twitter metadata | EXISTS | Title, description, image, URL and image-alt tags. |
 | Structured data | EXISTS / PARTIAL | Organization, LocalBusiness, WebSite, Product, Service, Article, FAQPage and BreadcrumbList are implemented; production validation remains required. |
-| XML sitemap | EXISTS | 63 public URLs including products, resources, articles and commercial landing pages. |
+| XML sitemap | EXISTS | 84 public URLs including products, resources, articles and commercial landing pages. |
 | Robots controls | EXISTS | Public crawling allowed; admin paths disallowed. |
 | Static SEO rendering | EXISTS | Sitemap-driven Playwright prerender script validates status, title, H1 and canonical. |
 | RAMS resource hub | EXISTS | Safety-net, edge-protection, loading-platform and method-statement resources. |
@@ -74,3 +74,24 @@ The ratings are repository and public-page estimates, not Google ranking guarant
 - Google Business Profile access or exported listing data.
 
 No unverified project, certification, review, client or No. 1 claim should be published.
+
+## Current Public Search Snapshot
+
+Checked: 15 November 2026. Search results vary by location, device and personalization, so this is a dated public-result sample rather than a permanent ranking claim.
+
+| Query | Public result observed | Strongest observable points | AMBS implementation response |
+|---|---|---|---|
+| safety nets UAE construction supplier | [TSS Store](https://tss-store.com/) | Established product catalogue, prices, product variants, visible advice route and long-running domain | AMBS has deeper engineering/RAMS guidance and cluster links; verified product data, approved downloads and project photography remain required |
+| safety nets UAE construction supplier | [UAE Yellow Pages safety-net category](https://www.yellowpages-uae.com/uae/safety-net) | Local supplier aggregation, UAE intent match and broad commercial discovery | Strengthen verified local entity proof and external citations without copying directory claims |
+| temporary edge protection systems UAE | [PERI UAE safety systems](https://www.peri.ae/products/construction-accessories/safety-systems.html) | Recognizable product systems, application detail, professional product imagery and loading-platform cross-sell | AMBS now connects edge protection, standards, RAMS, products and quotation routes; original product photography and verified specifications remain missing |
+| temporary edge protection systems UAE | [APAC temporary edge protection guide](https://apacsafety.com/temporary-edge-protection-systems-middle-east/) | Region-specific buyer guide, informational intent coverage and standards-oriented terminology | AMBS has BS EN 13374 guidance, system-type comparison and reciprocal cluster links |
+| loading platforms UAE construction | [Al Wisam loading platform](https://www.alwisamllc.com/our-products/material-handling/awtc/loading-platform) | Dedicated commercial product page and direct product intent | AMBS has a dedicated pillar, product page, RAMS guide and documentation request path; verified capacities and dimensions must come from approved product data |
+| loading platforms UAE construction | [PERI UAE safety systems](https://www.peri.ae/products/construction-accessories/safety-systems.html) | Product ecosystem, installation concept and material-handling context | AMBS content now covers selection, temporary-works interfaces, documentation and enquiry preparation |
+| temporary works safety solutions UAE | [SPS temporary works advisory](https://scaff.ae/temporary-works-advisory/) | UAE-specific advisory positioning, named technical references and direct consultation intent | AMBS has a temporary-works pillar and engineering/resource cluster; verified expert names and credentials remain blocked |
+
+### Search Evidence Limitations
+
+- The production AMBS hostname was not accessible from the audit environment, so deployed indexing and ranking could not be verified.
+- No current Google Search Console export was available.
+- Search-result positions are intentionally not stored as permanent facts.
+- Competitor certifications, client claims and performance statements were not reused as AMBS claims.

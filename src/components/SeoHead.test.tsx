@@ -16,4 +16,11 @@ describe("SeoHead", () => {
     expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute("href")).toBe("https://www.ambs.ae/test");
     expect(document.head.querySelectorAll('script[data-ambs-schema="true"]')).toHaveLength(2);
   });
+
+  it("removes canonical and schema from a noindex 404", async () => {
+    render(<SeoHead title="Missing" description="Not found" path="/missing" noindex includeCanonical={false}/>);
+    await waitFor(() => expect(document.head.querySelector('meta[name="robots"]')?.getAttribute("content")).toContain("noindex"));
+    expect(document.head.querySelector('link[rel="canonical"]')).toBeNull();
+    expect(document.head.querySelectorAll('script[data-ambs-schema="true"]')).toHaveLength(0);
+  });
 });

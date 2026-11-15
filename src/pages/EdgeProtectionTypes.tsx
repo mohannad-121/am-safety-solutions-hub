@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle2, ClipboardCheck, Layers3, ShieldCheck, Wrench 
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { SeoHead } from "@/components/SeoHead";
+import { buildCanonicalUrl } from "@/lib/canonical";
 
 const systems = [
   { id: "slab", name: "Concrete & Slab Edge", fixing: "Bolt-down socket, slab grab or edge bracket", use: "Open floors, balconies, podiums and slab openings", class: "Typically Class A; confirm tested configuration", image: "/assets/images/edge-protection-systems.jpg", checks: ["Concrete strength and slab thickness", "Anchor edge distance", "Post spacing and toe-board continuity"] },
@@ -33,7 +34,7 @@ export default function EdgeProtectionTypes() {
   const [selectedId, setSelectedId] = useState<(typeof systems)[number]["id"]>("slab");
   const selected = systems.find((system) => system.id === selectedId) ?? systems[0];
   const schema = [
-    { "@context": "https://schema.org", "@type": "WebPage", name: "Types of Edge Protection Systems", url: "https://www.ambs.ae/edge-protection-systems/types-of-edge-protection-systems", description: "Compare temporary edge protection systems by structure, fixing, application and EN 13374 class." },
+    { "@context": "https://schema.org", "@type": "WebPage", name: "Types of Edge Protection Systems", url: buildCanonicalUrl("/edge-protection-systems/types-of-edge-protection-systems"), description: "Compare temporary edge protection systems by structure, fixing, application and EN 13374 class." },
     { "@context": "https://schema.org", "@type": "FAQPage", mainEntity: faq.map(([question, answer]) => ({ "@type": "Question", name: question, acceptedAnswer: { "@type": "Answer", text: answer } })) },
   ];
 

@@ -4,11 +4,6 @@ import path from "node:path";
 import { chromium } from "playwright";
 import { preview } from "vite";
 
-if (process.env.VERCEL) {
-  console.log("Skipping browser prerender on Vercel; local builds validate every sitemap route.");
-  process.exit(0);
-}
-
 const rootDir = path.resolve(process.cwd());
 const distDir = path.join(rootDir, "dist");
 const sitemapPath = path.join(distDir, "sitemap.xml");
@@ -27,7 +22,7 @@ const windowsChrome = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.ex
 
 function sitemapRoutes() {
   const xml = fs.readFileSync(sitemapPath, "utf8");
-  return [...new Set([...xml.matchAll(/<loc>https:\/\/www\.ambs\.ae([^<]*)<\/loc>/g)].map((match) => match[1] || "/"))];
+  return [...new Set([...xml.matchAll(/<loc>https?:\/\/[^/]+([^<]*)<\/loc>/g)].map((match) => match[1] || "/"))];
 }
 
 function outputPath(route) {

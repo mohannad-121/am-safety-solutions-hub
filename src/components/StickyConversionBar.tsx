@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { FileUp, MessageSquareText } from "lucide-react";
-import { whatsappUrl } from "@/config/company";
+import { company, whatsappUrl } from "@/config/company";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 
 export function StickyConversionBar() {
@@ -15,13 +15,13 @@ export function StickyConversionBar() {
           <div className="flex items-center gap-2">
             <Link to="/quote" className="quick-action"><MessageSquareText size={17} /> Request quote</Link>
             <Link to="/quote?type=drawings" className="quick-action"><FileUp size={17} /> Send drawings</Link>
-            <a href={whatsappUrl(message)} target="_blank" rel="noreferrer" className="quick-action bg-[#25D366] text-[#082b16] hover:bg-[#33e477]"><WhatsAppIcon className="h-5 w-5" /> WhatsApp</a>
+            {company.whatsappNumber && <a href={whatsappUrl(message)} target="_blank" rel="noreferrer" className="quick-action bg-[#25D366] text-[#082b16] hover:bg-[#33e477]"><WhatsAppIcon className="h-5 w-5" /> WhatsApp</a>}
           </div>
         </div>
       </aside>
-      <a href={whatsappUrl(message)} target="_blank" rel="noreferrer" className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl transition-transform hover:scale-105 md:bottom-20 md:right-6" aria-label="Message AM Building Solutions on WhatsApp" title="WhatsApp AMBS">
+      {company.whatsappNumber && <a href={whatsappUrl(message)} target="_blank" rel="noreferrer" className="fixed bottom-20 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-xl transition-transform hover:scale-105 md:bottom-20 md:right-6" aria-label="Message AM Building Solutions on WhatsApp" title="WhatsApp AMBS">
         <WhatsAppIcon className="h-8 w-8" />
-      </a>
+      </a>}
     </>
   );
 }
