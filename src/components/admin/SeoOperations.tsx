@@ -36,7 +36,13 @@ function pct(value?: number) {
 }
 
 export function SeoOperations() {
-  const [status, setStatus] = useState<IntegrationStatus | null>(null);
+  const [status, setStatus] = useState<IntegrationStatus>({
+    searchConsole: false,
+    pageSpeed: false,
+    crux: false,
+    siteUrl: getPublicSiteUrl(),
+    inspectionQuota: { used: 0, safetyBudget: 200 },
+  });
   const [crawl, setCrawl] = useState<LiveCrawlResult | null>(null);
   const [analytics, setAnalytics] = useState<SearchAnalyticsResult | null>(null);
   const [inspections, setInspections] = useState<InspectionResult | null>(null);

@@ -78,7 +78,7 @@ export type IntegrationRun = { id: string; action: string; status: string; site_
 
 async function invoke<T>(action: string, payload: Record<string, unknown> = {}) {
   if (!seoIntegrationsEnabled) throw new Error("SEO integrations are disabled for this environment.");
-  const { data, error } = await supabase.functions.invoke("seo-integrations", { body: { action, siteUrl: getPublicSiteUrl(), ...payload } });
+  const { data, error } = await supabase.functions.invoke("seo-integrations", { body: { action, ...payload } });
   if (error) throw new Error(error.message);
   if (data?.error) throw new Error(data.error);
   return data as T;

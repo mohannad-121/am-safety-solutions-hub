@@ -137,9 +137,15 @@ async function liveCrawl(siteUrl: string, maxPages = 100) {
   const sitemapResponse = await fetch(`${origin}/sitemap.xml`, { redirect: "follow" });
   if (!sitemapResponse.ok) throw new Error(`Sitemap returned HTTP ${sitemapResponse.status}.`);
   const xml = await sitemapResponse.text();
-  const sitemapUrls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => approvedUrl(match[1], origin)).filter(Boolean).slice(0, limit);
-  const sitemapSet = new Set(sitemapUrls);
-  const queue = [`${origin}/`, ...sitemapUrls];
+  const sitemapUrls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1].trim()).filter((value) => {
+    try { return new URL(value).protocol === "https:"; } catch { return false; }
+  }).slice(0, limit);
+  const crawlUrls = sitemapUrls.map((value) => {
+    const url = new URL(value);
+    return approvedUrl(`${url.pathname}${url.search}`, origin);
+  }).filter(Boolean);
+  const sitemapSet = new Set(crawlUrls);
+  const queue = [`${origin}/`, ...crawlUrls];
   const queued = new Set(queue);
   const pages: Array<Record<string, unknown> & { requestedUrl: string; finalUrl: string; title: string; description: string; canonical: string; links: Array<{ url: string; anchorText: string }>; images: Array<{ url: string; alt: string }> }> = [];
   while (queue.length && pages.length < limit) {
