@@ -53,8 +53,8 @@ function StatisticsSection() {
 
     if (hasAnimatedRef.current || !sectionRef.current) return;
 
-    const duration = 2000;
-    const easeOutCubic = (progress: number) => 1 - Math.pow(1 - progress, 3);
+    const duration = 4000;
+    const easeInOutSine = (progress: number) => -(Math.cos(Math.PI * progress) - 1) / 2;
     const observer = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting || hasAnimatedRef.current) return;
 
@@ -64,7 +64,7 @@ function StatisticsSection() {
 
       const animate = (now: number) => {
         const progress = Math.min((now - startTime) / duration, 1);
-        const easedProgress = easeOutCubic(progress);
+        const easedProgress = easeInOutSine(progress);
         setCounts({
           projects: Math.round(finalCounts.projects * easedProgress),
           years: Math.round(finalCounts.years * easedProgress),
