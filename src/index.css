@@ -257,9 +257,10 @@
   .product-image { @apply aspect-[3/2] overflow-hidden bg-secondary; }
   .product-image img { @apply h-full w-full object-cover transition-transform duration-500; }
   .product-card:hover .product-image img { transform: scale(1.03); }
-  .home-stat { @apply flex min-h-[118px] flex-col justify-center bg-[#171c21] px-5 py-6; }
-  .home-stat strong { @apply font-display text-3xl font-extrabold uppercase text-[#F9A900] md:text-4xl; }
-  .home-stat span { @apply mt-1 text-sm font-semibold text-white/75; }
+  .home-stat { @apply flex min-h-[118px] min-w-0 flex-col justify-center bg-[#171c21] px-3 py-6 sm:px-5; }
+  .home-stat > strong { @apply whitespace-nowrap font-display font-extrabold uppercase leading-none text-[#F9A900]; font-size: clamp(1.5rem, 3vw, 3rem); font-variant-numeric: tabular-nums; }
+  .home-stat > span { @apply mt-2 text-sm font-semibold text-white/75; }
+  @media (max-width: 350px) { .home-stat > strong { font-size: 1.25rem; } }
   .interactive-product-card { @apply relative overflow-hidden rounded-md border border-border bg-white transition-[transform,border-color,box-shadow] duration-300 hover:-translate-y-1 hover:border-accent hover:shadow-xl; }
   .interactive-product-media { @apply relative aspect-[3/2] overflow-hidden bg-secondary; perspective: 900px; }
   .interactive-product-media img { @apply absolute inset-0 h-full w-full object-cover transition-[opacity,transform] duration-700; backface-visibility: hidden; }
