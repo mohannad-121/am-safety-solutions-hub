@@ -201,8 +201,11 @@ export async function fetchImageSlots() {
   if (remoteCmsEnabled) try {
     const { data, error } = await client.from("cms_image_slots").select("*").order("page_name");
     if (error || !data?.length) return fallback;
-    const versionsResult = await client.from("cms_image_versions").select("*").order("version_number");
-    const mapped = data.map(row => mapSlotFromDatabase(row as Record<string, unknown>, (versionsResult.data || []) as Record<string, unknown>[]));
+    const { data: { session } } = await client.auth.getSession();
+    const versions = session
+      ? ((await client.from("cms_image_versions").select("*").order("version_number")).data || []) as Record<string, unknown>[]
+      : [];
+    const mapped = data.map(row => mapSlotFromDatabase(row as Record<string, unknown>, versions));
     const merged = mergeImageSeeds(mapped);
     writeLocal(CMS_IMAGE_STORAGE_KEY, merged);
     return merged;
@@ -371,7 +374,7 @@ export async function saveContentRecord(records: CmsContentRecord[], record: Cms
   if (publish && !canPublish(user.role)) throw new Error("Only Admin and Super Admin can publish.");
   if (!canEditContent(user.role)) throw new Error("You do not have permission to edit content.");
   const timestamp = new Date().toISOString();
-  const saved = { ...record, status: publish ? "published" as const : record.status, publishedData: publish ? record.draftData : record.publishedData, updatedAt: timestamp, updatedBy: user.email };
+  const saved = { ...record, status: publish ? "published" as const : record.status, publishedData: publish ? { ...record.draftData, title: record.title } : record.publishedData, updatedAt: timestamp, updatedBy: user.email };
   const next = records.some(item => item.id === saved.id) ? records.map(item => item.id === saved.id ? saved : item) : [saved, ...records];
   writeLocal(CMS_CONTENT_STORAGE_KEY, next);
   if (remoteCmsEnabled) try {

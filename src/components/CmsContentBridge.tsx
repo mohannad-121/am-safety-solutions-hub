@@ -16,11 +16,15 @@ export function CmsContentBridge() {
     if (!record) return;
     const heading = document.querySelector<HTMLElement>("main h1");
     if (!heading) return;
-    if (!heading.dataset.cmsOriginal) heading.dataset.cmsOriginal = heading.textContent || "";
-    heading.dataset.cmsContentKey = record.contentKey;
-    heading.textContent = record.title || heading.dataset.cmsOriginal;
-
     const summary = typeof record.publishedData.summary === "string" ? record.publishedData.summary.trim() : "";
+    const savedTitle = typeof record.publishedData.title === "string" ? record.publishedData.title.trim() : "";
+    const publishedTitle = savedTitle || (summary ? record.title.trim() : "");
+    if (publishedTitle) {
+      if (!heading.dataset.cmsOriginal) heading.dataset.cmsOriginal = heading.textContent || "";
+      heading.dataset.cmsContentKey = record.contentKey;
+      heading.textContent = publishedTitle;
+    }
+
     const paragraphs = Array.from(heading.parentElement?.querySelectorAll<HTMLElement>("p") || []);
     const lead = paragraphs.find(element => Boolean(heading.compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING) && !element.classList.contains("eyebrow"));
     if (lead && summary) {
