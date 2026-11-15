@@ -1,5 +1,15 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "trailingSlash": false,
+  "buildCommand": "npm run vercel-build",
+  "redirects": [
+    { "source": "/:path*", "has": [{ "type": "host", "value": "ambs.ae" }], "destination": "https://www.ambs.ae/:path*", "permanent": true },
+    { "source": "/standards", "destination": "/standards/en-13374-edge-protection", "permanent": true },
+    { "source": "/en-13374-edge-protection", "destination": "/standards/en-13374-edge-protection", "permanent": true },
+    { "source": "/bs-en-13374-2025-edge-protection", "destination": "/standards/en-13374-edge-protection", "permanent": true },
+    { "source": "/certifications", "destination": "/standards/en-13374-edge-protection", "permanent": true },
+    { "source": "/edge-protection-faqs", "destination": "/faq", "permanent": true }
+  ],
+  "rewrites": [{ "source": "/admin/(.*)", "destination": "/index.html" }],
   "headers": [
     {
       "source": "/admin/(.*)",

@@ -6,16 +6,26 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/prerender-seo.mjs",
+    "vercel-build": "npx playwright install chromium && npm run build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
     "qa:site": "node scripts/qa-site.mjs",
+    "qa:a11y": "node scripts/qa-accessibility.mjs",
+    "qa:lighthouse": "lhci autorun --config=lighthouserc.json",
+    "audit:prerender": "node scripts/audit-prerender.mjs",
     "qa:rams-mobile": "node scripts/qa-rams-mobile.mjs",
+    "qa:mobile-production": "node scripts/mobile-production-qa.mjs",
+    "screenshots:mobile": "node scripts/mobile-production-qa.mjs",
+    "audit:mobile-production": "node scripts/mobile-production-qa.mjs",
+    "test:mobile": "node scripts/mobile-production-qa.mjs",
     "qa:admin": "node scripts/qa-admin.mjs",
     "qa:stress": "node scripts/qa-site.mjs --refresh=100",
     "qa:load": "node scripts/load-test.mjs",
     "launch:check": "node scripts/launch-check.mjs",
     "test": "vitest run",
+    "test:canonical": "vitest run src/test/canonical.test.ts src/components/SeoHead.test.tsx",
+    "test:seo-center": "vitest run src/components/admin/SeoCenter.test.tsx src/test/seoSuggestions.test.ts src/test/schemaValidation.test.ts",
     "test:watch": "vitest"
   },
   "dependencies": {
@@ -66,7 +76,9 @@
     "vaul": "^0.9.9"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
     "@eslint/js": "^9.32.0",
+    "@lhci/cli": "^0.15.1",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/react": "^16.0.0",

@@ -130,10 +130,11 @@ export default function AdminLogin() {
           )}
 
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-primary-foreground">Email</label>
+            <label htmlFor="admin-email" className="block text-sm font-medium text-primary-foreground">Email</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <Input
+                id="admin-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -146,10 +147,11 @@ export default function AdminLogin() {
 
           {!useMagicLink && (
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-primary-foreground">Password</label>
+              <label htmlFor="admin-password" className="block text-sm font-medium text-primary-foreground">Password</label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
+                  id="admin-password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

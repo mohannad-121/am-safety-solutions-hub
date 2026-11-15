@@ -1,5 +1,21 @@
 # AM Building Solutions - Deployment Guide
 
+## Production URL policy
+
+- Configure both `ambs.ae` and `www.ambs.ae` on the Vercel production project.
+- Keep `www.ambs.ae` as the primary domain. The repository redirects the apex host to the primary host.
+- Vercel terminates HTTP and redirects requests to HTTPS. `trailingSlash: false` enforces the no-trailing-slash policy.
+- Set `VITE_PUBLIC_SITE_URL` and server-only `PUBLIC_SITE_URL` to `https://www.ambs.ae`.
+- Never set production URL variables to localhost or a preview hostname.
+- Vercel installs Chromium and prerenders every sitemap URL so canonical, Open Graph and JSON-LD signals are present in initial HTML.
+
+## Search Console and PageSpeed
+
+- Set `GSC_SITE_URL` to the exact verified property, for example `sc-domain:ambs.ae`.
+- Set `GOOGLE_SERVICE_ACCOUNT_JSON` only as a server-side Supabase Edge Function secret and grant its service-account email access to Search Console.
+- Set `PAGESPEED_API_KEY` as a server-side Edge Function secret.
+- Deploy the `seo-integrations` Supabase Edge Function. Admin status remains `Not configured` until the server verifies these variables.
+
 ## Launch configuration
 
 Set these Vercel environment variables before deployment:

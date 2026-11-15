@@ -3,8 +3,9 @@ import { AlertTriangle, ArrowRight, CheckCircle2, ClipboardCheck, Download, File
 import { Footer } from "@/components/layout/Footer";
 import { Navbar } from "@/components/layout/Navbar";
 import { SeoHead } from "@/components/SeoHead";
+import { getPublicSiteUrl } from "@/lib/canonical";
 
-const baseUrl = "https://www.ambs.ae";
+const baseUrl = getPublicSiteUrl();
 const disclaimer = "This resource is provided for general construction safety awareness and RAMS planning support. It is not a final project-specific Risk Assessment or Method Statement. Final RAMS, temporary works design, installation sequence, lifting plan and inspection requirements must be reviewed and approved by competent project personnel based on actual site conditions, approved drawings, manufacturer instructions, local regulations and main contractor requirements.";
 
 type Faq = readonly [string, string];

@@ -1,0 +1,8 @@
+import { Link } from "react-router-dom";
+import { ArrowRight, BookOpen } from "lucide-react";
+import { Footer } from "@/components/layout/Footer";
+import { Navbar } from "@/components/layout/Navbar";
+import { SeoHead } from "@/components/SeoHead";
+import { authorityResources } from "@/pages/AuthorityResource";
+
+export default function TechnicalLibrary(){return <div className="min-h-screen"><SeoHead title="Construction Safety Technical Resource Library" description="AMBS technical guidance for safety nets, edge protection, loading platforms, temporary works, welding quality and contractor submittals." path="/resources/technical-library"/><Navbar/><main><section className="bg-[#20262b] py-20 text-white"><div className="container-wide"><p className="eyebrow text-[#F9A900]">AMBS resource center</p><h1 className="hero-title mt-3">Construction Safety Technical Library</h1><p className="mt-5 max-w-3xl text-lg leading-8 text-white/70">Practical starting points for contractor, consultant, engineering, HSE and procurement review.</p></div></section><section className="section-band bg-white"><div className="container-wide grid gap-4 md:grid-cols-2 lg:grid-cols-3">{Object.entries(authorityResources).map(([slug,page])=><Link key={slug} to={`/resources/${slug}`} className="group border border-border p-5 transition hover:border-accent hover:shadow-lg"><BookOpen className="text-accent"/><h2 className="mt-4 font-display text-xl font-bold uppercase group-hover:text-accent">{page.title}</h2><p className="mt-3 text-sm leading-6 text-muted-foreground">{page.description}</p><span className="ambs-text-link mt-5">Open guide <ArrowRight size={16}/></span></Link>)}</div></section></main><Footer/></div>}

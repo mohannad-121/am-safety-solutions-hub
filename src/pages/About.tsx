@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { SeoHead } from "@/components/SeoHead";
 import { ManagedBackgroundVideo } from "@/components/video/ManagedBackgroundVideo";
 import { useCmsImages } from "@/hooks/use-cms";
+import { buildCanonicalUrl, getPublicSiteUrl } from "@/lib/canonical";
 
 const aboutImages = {
   // IMAGE PLACEHOLDER - replace with AMBS team/engineering photo
@@ -24,8 +25,8 @@ const aboutImages = {
 };
 
 const aboutSchema = [
-  { "@context": "https://schema.org", "@type": "Organization", name: "AM Building Solutions DWC LLC", alternateName: "AMBS", url: "https://www.ambs.ae" },
-  { "@context": "https://schema.org", "@type": "VideoObject", name: "AM Building Solutions construction safety systems", description: "AM Building Solutions supports safety nets, temporary edge protection systems and temporary works safety solutions for UAE construction projects.", thumbnailUrl: "https://www.ambs.ae/assets/images/about-hero-poster.jpg", contentUrl: "https://www.ambs.ae/assets/videos/about-hero-video.mp4" },
+  { "@context": "https://schema.org", "@type": "Organization", name: "AM Building Solutions DWC LLC", alternateName: "AMBS", url: `${getPublicSiteUrl()}/` },
+  { "@context": "https://schema.org", "@type": "VideoObject", name: "AM Building Solutions construction safety systems", description: "AM Building Solutions supports safety nets, temporary edge protection systems and temporary works safety solutions for UAE construction projects.", thumbnailUrl: buildCanonicalUrl("/assets/images/about-hero-poster.jpg"), contentUrl: buildCanonicalUrl("/assets/videos/about-hero-video.mp4") },
 ];
 
 const storySteps = [

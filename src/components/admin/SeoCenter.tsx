@@ -23,6 +23,9 @@ import {
   type SeoAuditReport,
   type SeoIssue,
 } from "@/lib/seoAudit";
+import { AiSuggestionsPanel } from "@/components/admin/AiSuggestionsPanel";
+import { CanonicalHealth } from "@/components/admin/CanonicalHealth";
+import { SeoOperations } from "@/components/admin/SeoOperations";
 
 const labels = {
   technical: "Technical SEO",
@@ -33,9 +36,14 @@ const labels = {
   internal: "Internal linking",
   performance: "Performance/mobile",
   aiReadiness: "AI-search readiness",
+  canonical: "Canonical health",
+  eeat: "E-E-A-T signals",
+  helpfulContent: "Helpful content",
+  topicClusters: "Topic clusters",
+  conversion: "Conversion readiness",
 };
 
-function ScoreRing({ value }: { value: number }) {
+function ScoreRing({ value, complete }: { value: number; complete: boolean }) {
   const color = value >= 85 ? "#15803d" : value >= 65 ? "#d97706" : "#b91c1c";
   return (
     <div
@@ -47,7 +55,7 @@ function ScoreRing({ value }: { value: number }) {
       <div className="grid h-28 w-28 place-items-center rounded-full bg-white text-center">
         <div>
           <strong className="text-3xl">{value}%</strong>
-          <span className="block text-xs text-slate-500">Overall SEO</span>
+          <span className="block text-xs text-slate-500">{complete ? "Evidence score" : "Provisional score"}</span>
         </div>
       </div>
     </div>
@@ -228,7 +236,7 @@ export function SeoCenter({ user }: { user: CmsAdminUser }) {
         <>
           <div className="grid gap-5 xl:grid-cols-[320px_1fr]">
             <div className="flex items-center gap-6 rounded-md border bg-white p-5 xl:flex-col xl:justify-center">
-              <ScoreRing value={current.overallScore} />
+              <ScoreRing value={current.overallScore} complete={(current.measurementCoverage ?? 0) === 100 && current.issues.length === 0} />
               <div className="text-sm">
                 <p>
                   <strong>{current.pagesChecked}</strong> pages checked
@@ -236,6 +244,10 @@ export function SeoCenter({ user }: { user: CmsAdminUser }) {
                 <p className="mt-1">
                   <strong>{current.issues.length}</strong> items need review
                 </p>
+                <p className="mt-1">
+                  <strong>{current.measurementCoverage ?? "Legacy"}{typeof current.measurementCoverage === "number" ? "%" : ""}</strong> evidence coverage
+                </p>
+                {!!current.unmeasuredCategories?.length && <p className="mt-1 text-xs text-amber-700">Unmeasured: {current.unmeasuredCategories.map((category) => labels[category]).join(", ")}</p>}
                 <p className="mt-1 text-xs text-slate-500">
                   {new Date(current.createdAt).toLocaleString()}
                 </p>
@@ -265,6 +277,10 @@ export function SeoCenter({ user }: { user: CmsAdminUser }) {
                     <p className="mt-1 text-2xl font-semibold">
                       {score === null ? "Not measured" : `${score}%`}
                     </p>
+                    {current.categoryEvidence?.[category as keyof typeof current.categoryEvidence] && <p className="mt-2 text-xs leading-5 text-slate-500">
+                      {current.categoryEvidence[category as keyof typeof current.categoryEvidence].source}<br />
+                      {current.categoryEvidence[category as keyof typeof current.categoryEvidence].findings} findings on {current.categoryEvidence[category as keyof typeof current.categoryEvidence].pagesAffected} pages
+                    </p>}
                   </article>
                 ),
               )}
@@ -415,6 +431,9 @@ export function SeoCenter({ user }: { user: CmsAdminUser }) {
           </div>
         </>
       )}
+      <CanonicalHealth />
+      <SeoOperations />
+      <AiSuggestionsPanel issues={current?.issues || []} user={user} />
     </section>
   );
 }

@@ -34,7 +34,6 @@
   <url><loc>https://www.ambs.ae/what-is-en-1263-safety-net</loc><priority>0.8</priority></url>
   <url><loc>https://www.ambs.ae/what-is-en-13374-edge-protection</loc><priority>0.8</priority></url>
   <url><loc>https://www.ambs.ae/standards/en-13374-edge-protection</loc><priority>0.8</priority></url>
-  <url><loc>https://www.ambs.ae/bs-en-13374-2025-edge-protection</loc><priority>0.75</priority></url>
   <url><loc>https://www.ambs.ae/engineering-solutions</loc><priority>0.8</priority></url>
   <url><loc>https://www.ambs.ae/high-risk-products</loc><priority>0.8</priority></url>
   <url><loc>https://www.ambs.ae/steel-fabrication</loc><priority>0.8</priority></url>
@@ -62,4 +61,27 @@
   <url><loc>https://www.ambs.ae/quote</loc><priority>0.9</priority></url>
   <url><loc>https://www.ambs.ae/privacy</loc><priority>0.3</priority></url>
   <url><loc>https://www.ambs.ae/terms</loc><priority>0.3</priority></url>
+  <url><loc>https://www.ambs.ae/editorial-policy</loc><priority>0.5</priority></url>
+  <url><loc>https://www.ambs.ae/industries</loc><priority>0.7</priority></url>
+  <url><loc>https://www.ambs.ae/offers</loc><priority>0.65</priority></url>
+  <url><loc>https://www.ambs.ae/resources/technical-library</loc><priority>0.8</priority></url>
+  <url><loc>https://www.ambs.ae/resources/en-1263-1-vs-en-1263-2</loc><priority>0.7</priority></url>
+  <url><loc>https://www.ambs.ae/resources/polypropylene-safety-nets</loc><priority>0.7</priority></url>
+  <url><loc>https://www.ambs.ae/resources/safety-net-uv-treatment</loc><priority>0.7</priority></url>
+  <url><loc>https://www.ambs.ae/resources/safety-net-mesh-size</loc><priority>0.7</priority></url>
+  <url><loc>https://www.ambs.ae/resources/safety-net-inspection-checklist</loc><priority>0.7</priority></url>
+  <url><loc>https://www.ambs.ae/resources/safety-net-test-mesh-ageing</loc><priority>0.7</priority></url>
+  <url><loc>https://www.ambs.ae/resources/catch-net-vs-debris-net</loc><priority>0.7</priority></url>
+  <url><loc>https://www.ambs.ae/resources/roof-edge-protection</loc><priority>0.7</priority></url>
+  <url><loc>https://www.ambs.ae/resources/toe-board-mesh-panel-guidance</loc><priority>0.7</priority></url>
+  <url><loc>https://www.ambs.ae/resources/material-access-platforms</loc><priority>0.7</priority></url>
+  <url><loc>https://www.ambs.ae/resources/loading-platform-pre-use-checklist</loc><priority>0.7</priority></url>
+  <url><loc>https://www.ambs.ae/resources/iso-3834-welding-quality</loc><priority>0.65</priority></url>
+  <url><loc>https://www.ambs.ae/resources/iso-9606-welder-qualification</loc><priority>0.65</priority></url>
+  <url><loc>https://www.ambs.ae/resources/aws-d1-1-structural-welding</loc><priority>0.65</priority></url>
+  <url><loc>https://www.ambs.ae/resources/custom-brackets-temporary-works</loc><priority>0.65</priority></url>
+  <url><loc>https://www.ambs.ae/resources/welded-frames-temporary-works</loc><priority>0.65</priority></url>
+  <url><loc>https://www.ambs.ae/resources/work-at-height-glossary</loc><priority>0.7</priority></url>
+  <url><loc>https://www.ambs.ae/resources/construction-safety-systems-comparison</loc><priority>0.7</priority></url>
+  <url><loc>https://www.ambs.ae/resources/contractor-technical-submittal-checklist</loc><priority>0.7</priority></url>
 </urlset>
