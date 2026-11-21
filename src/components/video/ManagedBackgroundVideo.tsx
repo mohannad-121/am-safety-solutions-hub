@@ -88,7 +88,7 @@ export function ManagedBackgroundVideo({
 
     video.loop = loop;
     video.playsInline = true;
-    video.preload = "metadata";
+    video.preload = "none";
 
     const applyPreference = () => {
       if (getSoundPreference() === "muted") {
@@ -225,7 +225,7 @@ export function ManagedBackgroundVideo({
 
   return (
     <section ref={frameRef} className={className}>
-      <video ref={videoRef} id={id} className={videoClassName} playsInline loop={loop} preload="metadata" poster={poster} aria-hidden="true">
+      <video ref={videoRef} id={id} className={videoClassName} playsInline loop={loop} preload="none" poster={poster} aria-hidden="true">
         <source src={mp4Src} type="video/mp4" />
         <source src={webmSrc} type="video/webm" />
         <source src={mobileMp4Src} type="video/mp4" media="(max-width: 768px)" />
