@@ -6,6 +6,8 @@ export type IntegrationStatus = {
   searchConsole: boolean;
   pageSpeed: boolean;
   crux: boolean;
+  openAi: boolean;
+  competitor: boolean;
   siteUrl: string | null;
   gscProperty?: string | null;
   inspectionQuota?: { used: number; safetyBudget: number };
@@ -71,7 +73,7 @@ async function invoke<T>(action: string, payload: Record<string, unknown> = {}) 
   return data as T;
 }
 
-export const getSeoIntegrationStatus = () => remoteCmsEnabled ? invoke<IntegrationStatus>("status") : Promise.resolve({ searchConsole: false, pageSpeed: false, crux: false, siteUrl: getPublicSiteUrl(), inspectionQuota: { used: 0, safetyBudget: 200 } });
+export const getSeoIntegrationStatus = () => remoteCmsEnabled ? invoke<IntegrationStatus>("status") : Promise.resolve({ searchConsole: false, pageSpeed: false, crux: false, openAi: false, competitor: false, siteUrl: getPublicSiteUrl(), inspectionQuota: { used: 0, safetyBudget: 200 } });
 export const runLiveCrawl = (maxPages = 100, force = false) => invoke<LiveCrawlResult>("live_crawl", { maxPages, force });
 export const syncSearchConsole = (force = false) => { const endDate = new Date(); const startDate = new Date(endDate); startDate.setDate(startDate.getDate() - 28); return invoke<SearchAnalyticsResult>("search_analytics", { startDate: startDate.toISOString().slice(0, 10), endDate: endDate.toISOString().slice(0, 10), force }); };
 export const inspectSearchConsoleUrls = (urls: string[], force = false) => invoke<InspectionResult>("inspect", { urls, force });

@@ -20,7 +20,7 @@ if (!/VITE_WHATSAPP_NUMBER\s*=\s*["']?971558556746/.test(environment)) errors.pu
 
 const sitemap = existsSync("public/sitemap.xml") ? readFileSync("public/sitemap.xml", "utf8") : "";
 for (const path of ["/faq", "/privacy", "/terms"]) {
-  if (!sitemap.includes(`https://www.ambs.ae${path}`)) errors.push(`Sitemap is missing ${path}`);
+  if (!sitemap.includes(`https://am-safety-solutions-hub.vercel.app${path}`)) errors.push(`Sitemap is missing ${path}`);
 }
 
 if (sitemap.includes("/admin")) errors.push("Sitemap must not contain admin routes.");
