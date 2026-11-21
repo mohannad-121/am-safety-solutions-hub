@@ -83,7 +83,7 @@ export function Navbar() {
 
         <button type="button" onClick={() => setSearchOpen(true)} className="icon-button" aria-label="Search the website" title="Search"><Search size={21}/></button>
         {company.whatsappNumber && <a href={whatsappUrl(whatsappMessage)} target="_blank" rel="noreferrer" className="icon-button bg-[#16883f]/[.08] text-[#16883f]" aria-label="WhatsApp AM Building Solutions" title="WhatsApp"><WhatsAppIcon className="h-5 w-5"/></a>}
-        <Link to="/quote" className="ambs-button hidden 2xl:inline-flex">Request a Quote</Link>
+        <Link to="/quote" className="header-quote-button hidden 2xl:inline-flex"><span>Request a Quote</span></Link>
         <button type="button" className="icon-button xl:hidden" aria-label={mobileOpen ? "Close menu" : "Open menu"} aria-expanded={mobileOpen} onClick={() => setMobileOpen((value) => !value)}>{mobileOpen ? <X/> : <Menu/>}</button>
       </nav>
 
