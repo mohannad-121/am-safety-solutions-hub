@@ -38,8 +38,10 @@ function outputPath(route) {
 
 const server = await preview({ root: rootDir, preview: { host, port, strictPort: true } });
 try {
+  const serverlessChromium = process.env.VERCEL ? (await import("@sparticuz/chromium")).default : null;
   const browser = await chromium.launch({
     headless: true,
+    ...(serverlessChromium ? { executablePath: await serverlessChromium.executablePath(), args: serverlessChromium.args } : {}),
     ...(process.platform === "win32" && fs.existsSync(windowsChrome) ? { executablePath: windowsChrome } : {}),
   });
   const page = await browser.newPage({ viewport: { width: 1366, height: 768 } });

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/prerender-seo.mjs",
-    "vercel-build": "npx playwright install chromium --only-shell && npm run build && npm run audit:prerender",
+    "vercel-build": "npm run build && npm run audit:prerender",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
@@ -79,6 +79,7 @@
     "@axe-core/playwright": "^4.10.2",
     "@eslint/js": "^9.32.0",
     "@lhci/cli": "^0.15.1",
+    "@sparticuz/chromium": "^141.0.0",
     "@tailwindcss/typography": "^0.5.16",
     "@testing-library/jest-dom": "^6.6.0",
     "@testing-library/react": "^16.0.0",
