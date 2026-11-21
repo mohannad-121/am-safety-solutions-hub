@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   BarChart3,
@@ -26,6 +26,8 @@ import {
 import { AiSuggestionsPanel } from "@/components/admin/AiSuggestionsPanel";
 import { CanonicalHealth } from "@/components/admin/CanonicalHealth";
 import { SeoOperations } from "@/components/admin/SeoOperations";
+import { CompetitorComparison } from "@/components/admin/CompetitorComparison";
+import { getSeoIntegrationStatus, type IntegrationStatus } from "@/lib/seoIntegrations";
 
 const labels = {
   technical: "Technical SEO",
@@ -87,6 +89,10 @@ function Integration({
 }
 
 export function SeoCenter({ user }: { user: CmsAdminUser }) {
+  const [integrationStatus, setIntegrationStatus] = useState<IntegrationStatus | null>(null);
+  useEffect(() => {
+    void getSeoIntegrationStatus().then(setIntegrationStatus).catch(() => setIntegrationStatus(null));
+  }, []);
   const [history, setHistory] = useState<SeoAuditReport[]>(readSeoAuditHistory);
   const [running, setRunning] = useState(false);
   const [progress, setProgress] = useState({
@@ -388,22 +394,22 @@ export function SeoCenter({ user }: { user: CmsAdminUser }) {
                 <div className="mt-3">
                   <Integration
                     label="Google Search Console"
-                    connected={current.integrations.searchConsole}
+                    connected={integrationStatus?.searchConsole ?? false}
                     note="Clicks, impressions, CTR and average position."
                   />
                   <Integration
                     label="PageSpeed Insights"
-                    connected={current.integrations.pageSpeed}
+                    connected={integrationStatus?.pageSpeed ?? false}
                     note="Core Web Vitals and mobile performance."
                   />
                   <Integration
                     label="OpenAI suggestions"
-                    connected={current.integrations.openAi}
+                    connected={integrationStatus?.openAi ?? false}
                     note="Backend-only structured draft suggestions."
                   />
                   <Integration
                     label="TSS public benchmark"
-                    connected={current.integrations.competitor}
+                    connected={integrationStatus?.competitor ?? false}
                     note="Rate-limited public data, never private analytics."
                   />
                 </div>
@@ -433,6 +439,7 @@ export function SeoCenter({ user }: { user: CmsAdminUser }) {
       )}
       <CanonicalHealth />
       <SeoOperations />
+      <CompetitorComparison />
       <AiSuggestionsPanel issues={current?.issues || []} user={user} />
     </section>
   );

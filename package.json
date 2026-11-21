@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/prerender-seo.mjs",
-    "vercel-build": "npm run build",
+    "vercel-build": "npx playwright install chromium --only-shell && npm run build && npm run audit:prerender",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",

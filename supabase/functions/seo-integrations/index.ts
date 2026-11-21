@@ -23,7 +23,10 @@ async function authenticateAdmin(request: Request): Promise<AdminContext> {
 }
 
 function approvedOrigin(requested?: string) {
-  const configured = Deno.env.get("PUBLIC_SITE_URL") || "";
+  const configuredValue = Deno.env.get("PUBLIC_SITE_URL") || "https://am-safety-solutions-hub.vercel.app";
+  const configured = configuredValue === "https://www.ambs.ae"
+    ? "https://am-safety-solutions-hub.vercel.app"
+    : configuredValue;
   if (!configured) throw new Error("PUBLIC_SITE_URL is not configured on the server.");
   const approved = new URL(configured);
   if (approved.protocol !== "https:" || /^(?:localhost|127\.|0\.0\.0\.0|10\.|192\.168\.|172\.(?:1[6-9]|2\d|3[01])\.|169\.254\.)/i.test(approved.hostname)) {
@@ -223,7 +226,7 @@ Deno.serve(async (request) => {
     const configured = Boolean(Deno.env.get("GOOGLE_SERVICE_ACCOUNT_JSON") && gscSiteUrl);
     if (body.action === "status") {
       const usage = await context.client.from("seo_url_inspection_usage").select("requests_used").eq("usage_date", new Date().toISOString().slice(0, 10)).maybeSingle();
-      return json({ searchConsole: configured, pageSpeed: Boolean(Deno.env.get("PAGESPEED_API_KEY")), crux: Boolean(Deno.env.get("CRUX_API_KEY") || Deno.env.get("PAGESPEED_API_KEY")), siteUrl: publicSiteUrl, gscProperty: gscSiteUrl || null, inspectionQuota: { used: usage.data?.requests_used || 0, safetyBudget: 200 } });
+      return json({ searchConsole: configured, pageSpeed: Boolean(Deno.env.get("PAGESPEED_API_KEY")), crux: Boolean(Deno.env.get("CRUX_API_KEY") || Deno.env.get("PAGESPEED_API_KEY")), openAi: Boolean(Deno.env.get("OPENAI_API_KEY")), competitor: true, siteUrl: publicSiteUrl, gscProperty: gscSiteUrl || null, inspectionQuota: { used: usage.data?.requests_used || 0, safetyBudget: 200 } });
     }
     if (body.action === "live_crawl") return json(await withRun(context, body, publicSiteUrl, async () => { const key = `crawl:${publicSiteUrl}:${body.maxPages || 100}`; if (!body.force) { const cached = await cacheGet(context.client, key); if (cached) return { ...(cached as Record<string, unknown>), cached: true }; } const result = await liveCrawl(publicSiteUrl, body.maxPages); await cacheSet(context.client, context.user.id, key, body.action, publicSiteUrl, result, 30); return result; }));
     if (body.action === "pagespeed") return json(await withRun(context, body, publicSiteUrl, async () => { const key = Deno.env.get("PAGESPEED_API_KEY"); if (!key) throw new Error("PageSpeed API is not configured."); const target = approvedUrl(body.urls?.[0] || publicSiteUrl, publicSiteUrl); const strategy = body.device === "desktop" ? "desktop" : "mobile"; const response = await fetch(`https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(target)}&strategy=${strategy}&category=performance&category=accessibility&category=best-practices&category=seo&key=${encodeURIComponent(key)}`); if (!response.ok) throw new Error(`PageSpeed returned HTTP ${response.status}.`); return { ...(await response.json()), strategy, checkedAt: new Date().toISOString() }; }));

@@ -5,11 +5,11 @@ import { buildCanonicalUrl, canonicalIssueList, isPrivateOrNonIndexablePath, nor
 
 describe("canonical URL policy", () => {
   it("creates absolute lowercase HTTPS URLs without tracking or trailing slashes", () => {
-    expect(buildCanonicalUrl("HTTP://other.test/Safety-Nets/?utm_source=x&gclid=y")).toBe("https://www.ambs.ae/safety-nets");
-    expect(buildCanonicalUrl("/")).toBe("https://www.ambs.ae/");
+    expect(buildCanonicalUrl("HTTP://other.test/Safety-Nets/?utm_source=x&gclid=y")).toBe("https://am-safety-solutions-hub.vercel.app/safety-nets");
+    expect(buildCanonicalUrl("/")).toBe("https://am-safety-solutions-hub.vercel.app/");
   });
   it("preserves only approved indexable parameters", () => {
-    expect(buildCanonicalUrl("/articles?page=2&sort=old&utm_medium=cpc", { preservePageParameter: true })).toBe("https://www.ambs.ae/articles?page=2");
+    expect(buildCanonicalUrl("/articles?page=2&sort=old&utm_medium=cpc", { preservePageParameter: true })).toBe("https://am-safety-solutions-hub.vercel.app/articles?page=2");
   });
   it("identifies unsafe canonical targets", () => {
     expect(isPrivateOrNonIndexablePath("/admin/pages")).toBe(true);

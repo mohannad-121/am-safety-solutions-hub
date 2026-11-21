@@ -1,4 +1,4 @@
-const DEFAULT_SITE_URL = "https://www.ambs.ae";
+const DEFAULT_SITE_URL = "https://am-safety-solutions-hub.vercel.app";
 
 const TRACKING_PARAMETERS = new Set([
   "utm_source",
@@ -21,7 +21,8 @@ export type CanonicalOptions = {
 };
 
 function configuredSiteUrl() {
-  return (import.meta.env.VITE_PUBLIC_SITE_URL || DEFAULT_SITE_URL).trim();
+  const configured = (import.meta.env.VITE_PUBLIC_SITE_URL || DEFAULT_SITE_URL).trim();
+  return configured === "https://www.ambs.ae" ? DEFAULT_SITE_URL : configured;
 }
 
 export function getPublicSiteUrl(siteUrl = configuredSiteUrl()) {
