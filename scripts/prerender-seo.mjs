@@ -43,9 +43,15 @@ try {
     ...(process.platform === "win32" && fs.existsSync(windowsChrome) ? { executablePath: windowsChrome } : {}),
   });
   const page = await browser.newPage({ viewport: { width: 1366, height: 768 } });
+  await page.route("**/*", (route) => {
+    if (["image", "media", "font"].includes(route.request().resourceType())) return route.abort();
+    return route.continue();
+  });
   const failures = [];
   for (const route of sitemapRoutes()) {
-    const response = await page.goto(`${baseUrl}${route}`, { waitUntil: "networkidle", timeout: 30000 });
+    const response = await page.goto(`${baseUrl}${route}`, { waitUntil: "domcontentloaded", timeout: 30000 });
+    await page.locator("h1").first().waitFor({ state: "attached", timeout: 15000 });
+    await page.locator('link[rel="canonical"]').waitFor({ state: "attached", timeout: 15000 });
     const title = await page.title();
     const h1Count = await page.locator("h1").count();
     const canonical = await page.locator('link[rel="canonical"]').getAttribute("href").catch(() => null);
