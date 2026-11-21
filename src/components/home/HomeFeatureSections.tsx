@@ -1,7 +1,6 @@
-﻿import { useEffect, useState, type MouseEvent } from "react";
+import { useState, type MouseEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useRef } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, ClipboardCheck, Factory, FileText, GraduationCap, HardHat, PackageCheck, Ruler, ShieldCheck, Truck, Wrench } from "lucide-react";
 import { articles, products } from "@/data/ambs";
 import { company, whatsappUrl } from "@/config/company";
@@ -36,68 +35,12 @@ const faqs = [
 function SectionIntro({ eyebrow, title, copy }: { eyebrow: string; title: string; copy?: string }) { return <div className="max-w-3xl"><p className="eyebrow text-accent">{eyebrow}</p><h2 className="section-title mt-3">{title}</h2>{copy && <p className="mt-4 text-lg leading-8 text-muted-foreground">{copy}</p>}</div>; }
 
 function StatisticsSection() {
-  const reduced = useReducedMotion();
-  const sectionRef = useRef<HTMLElement>(null);
-  const animationFrameRef = useRef<number>();
-  const hasAnimatedRef = useRef(false);
-  const [counts, setCounts] = useState({ projects: 0, years: 0, enquiries: 0 });
-
-  useEffect(() => {
-    const finalCounts = { projects: 1000, years: 11, enquiries: 24 };
-
-    if (reduced) {
-      hasAnimatedRef.current = true;
-      setCounts(finalCounts);
-      return;
-    }
-
-    if (hasAnimatedRef.current || !sectionRef.current) return;
-
-    const duration = 4000;
-    const easeInOutSine = (progress: number) => -(Math.cos(Math.PI * progress) - 1) / 2;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting || hasAnimatedRef.current) return;
-
-      hasAnimatedRef.current = true;
-      observer.disconnect();
-      const startTime = performance.now();
-
-      const animate = (now: number) => {
-        const progress = Math.min((now - startTime) / duration, 1);
-        const easedProgress = easeInOutSine(progress);
-        setCounts({
-          projects: Math.round(finalCounts.projects * easedProgress),
-          years: Math.round(finalCounts.years * easedProgress),
-          enquiries: Math.round(finalCounts.enquiries * easedProgress),
-        });
-
-        if (progress < 1) {
-          animationFrameRef.current = requestAnimationFrame(animate);
-        } else {
-          setCounts(finalCounts);
-          animationFrameRef.current = undefined;
-        }
-      };
-
-      animationFrameRef.current = requestAnimationFrame(animate);
-    }, { threshold: 0.15 });
-
-    observer.observe(sectionRef.current);
-
-    return () => {
-      observer.disconnect();
-      if (animationFrameRef.current !== undefined) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [reduced]);
-
-  return <section ref={sectionRef} className="bg-[#171c21] py-8 text-white" aria-label="AM Building Solutions experience">
+  return <section className="bg-[#171c21] py-8 text-white" aria-label="AM Building Solutions experience">
     <div className="container-wide grid grid-cols-2 gap-px overflow-hidden rounded-md border border-white/10 bg-white/10 md:grid-cols-4">
-      <div className="home-stat"><strong aria-label="1,000 plus"><span aria-hidden="true">{counts.projects.toLocaleString()}+</span></strong><span>Projects Supported</span></div>
-      <div className="home-stat"><strong aria-label="11 plus"><span aria-hidden="true">{counts.years}+</span></strong><span>Years Experience</span></div>
+      <div className="home-stat"><strong aria-label="1,000 plus"><span aria-hidden="true">1,000+</span></strong><span>Projects Supported</span></div>
+      <div className="home-stat"><strong aria-label="11 plus"><span aria-hidden="true">11+</span></strong><span>Years Experience</span></div>
       <div className="home-stat"><strong>UAE &amp; GCC</strong><span>Regional Supply</span></div>
-      <div className="home-stat"><strong aria-label="24 hours a day, 7 days a week"><span aria-hidden="true">{counts.enquiries}</span><span aria-hidden="true">/7</span></strong><span>Project Enquiries</span></div>
+      <div className="home-stat"><strong aria-label="24 hours a day, 7 days a week"><span aria-hidden="true">24/7</span></strong><span>Project Enquiries</span></div>
     </div>
   </section>;
 }
