@@ -317,6 +317,14 @@
   .about-corner { @apply pointer-events-none absolute h-16 w-16; }
   .about-corner-top { @apply left-5 top-5 border-l-2 border-t-2 border-[#F9A900]; }
   .about-corner-bottom { @apply bottom-5 right-5 border-b-2 border-r-2 border-accent; }
+  .about-development-section { background: radial-gradient(circle at 12% 30%, #fff 0, #f5f6f4 55%, #eef0ef 100%); }
+  .about-development-media { padding-bottom: 34px; }
+  .about-development-section .about-image-frame { aspect-ratio: 4 / 3; border: 0; border-radius: 16px; box-shadow: 0 28px 60px -30px rgba(20, 30, 38, .48); }
+  .about-development-inset { position: absolute; right: -20px; bottom: 0; width: clamp(190px, 17vw, 250px); aspect-ratio: 4 / 3; border: 6px solid #f5f6f4; border-radius: 14px; box-shadow: 0 18px 35px -16px rgba(20, 30, 38, .55); }
+  .about-development-copy { max-width: 580px; padding-block: 2rem; }
+  .about-development-copy .section-title { font-size: clamp(2.25rem, 3.25vw, 3.25rem); line-height: 1.04; }
+  .about-development-rule { height: 4px; width: 76px; border-radius: 4px; background: linear-gradient(90deg, var(--ambs-red), var(--ambs-yellow)); }
+  .about-development-copy .keyword-chip { border-radius: 5px; border-color: #dce1e3; box-shadow: 0 3px 10px rgba(20, 30, 38, .04); }
   .story-visual { @apply relative min-h-[510px] overflow-hidden rounded-md border border-white/25 bg-[#111820]/95 p-5 shadow-2xl md:p-7; background-image: radial-gradient(circle at 12% 0%, rgba(244,169,0,.22), transparent 38%); }
   .story-rail { @apply grid grid-cols-4 gap-2 rounded-md border border-white/10 bg-black/20 p-3; }
   .story-rail-item { @apply flex min-w-0 flex-col items-center gap-2 rounded-sm px-1 py-3 text-center text-white/[.42] transition-colors duration-300; }
@@ -357,6 +365,9 @@
   .interactive-product-card > div:last-child { min-height: 190px; }
   footer { padding-bottom: calc(5rem + env(safe-area-inset-bottom)) !important; }
   .about-video-frame { height: 55vh; min-height: 360px; }
+  .about-development-media { padding-bottom: 0; }
+  .about-development-copy { padding-block: 0; }
+  .about-development-copy .section-title { font-size: clamp(2rem, 8.5vw, 2.5rem); }
   .sound-toggle-btn { right: 16px; top: 16px; padding: 9px 14px; font-size: 12px; }
   .story-visual { min-height: 470px; }
   .story-rail-item small { display: none; }
