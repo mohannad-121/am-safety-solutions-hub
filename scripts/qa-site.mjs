@@ -85,6 +85,14 @@ async function inspectVideos(page) {
   ]) {
     await page.goto(`${baseURL}${config.route}`, { waitUntil: "domcontentloaded" });
     const video = page.locator(`#${config.id}`);
+    const initial = await video.evaluate((element) => ({ paused: element.paused, poster: element.poster, preload: element.preload }));
+    if (!initial.poster) record(`${config.route}: missing poster`);
+    if (!initial.paused) record(`${config.route}: video should wait for hover/tap`);
+    if (initial.preload !== "none") record(`${config.route}: video should not preload before interaction`);
+
+    const supportsHover = await page.evaluate(() => window.matchMedia("(hover: hover) and (pointer: fine)").matches);
+    if (supportsHover) await page.locator(config.frame).hover();
+    else await page.locator(config.frame).click({ position: { x: 10, y: 10 } });
     await video.evaluate((element) => new Promise((resolve, reject) => {
       if (element.readyState >= 1) resolve(undefined);
       else {
@@ -92,15 +100,9 @@ async function inspectVideos(page) {
         window.setTimeout(() => reject(new Error("metadata timeout")), 15_000);
       }
     }));
-    const details = await video.evaluate((element) => ({ duration: element.duration, paused: element.paused, source: element.currentSrc, poster: element.poster }));
+    const details = await video.evaluate((element) => ({ duration: element.duration, source: element.currentSrc }));
     if (Math.abs(details.duration - config.duration) > 0.15) record(`${config.route}: video duration ${details.duration}, expected ${config.duration}`);
     if (/youtube|youtu\.be/i.test(details.source)) record(`${config.route}: still uses YouTube`);
-    if (!details.poster) record(`${config.route}: missing poster`);
-    if (!details.paused) record(`${config.route}: video should wait for hover/tap`);
-
-    const supportsHover = await page.evaluate(() => window.matchMedia("(hover: hover) and (pointer: fine)").matches);
-    if (supportsHover) await page.locator(config.frame).hover();
-    else await page.locator(config.frame).click({ position: { x: 10, y: 10 } });
     await page.waitForTimeout(1800);
     const playing = await video.evaluate((element) => !element.paused && element.currentTime > 0);
     if (!playing) record(`${config.route}: video did not play on hover`);
