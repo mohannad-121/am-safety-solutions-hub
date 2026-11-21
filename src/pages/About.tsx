@@ -59,10 +59,10 @@ function Reveal({ children, direction = "up", delay = 0, className = "" }: { chi
   return <motion.div className={className} initial={reduced ? false : { opacity: 0, ...offset }} whileInView={{ opacity: 1, x: 0, y: 0 }} viewport={{ once: true, amount: .22 }} transition={{ duration: .65, delay, ease: [0.22, 1, 0.36, 1] }}>{children}</motion.div>;
 }
 
-function ImageFrame({ src, alt, label, side = "right" }: { src: string; alt: string; label: string; side?: "left" | "right" }) {
+function ImageFrame({ src, alt, label, side = "right", reveal = true }: { src: string; alt: string; label: string; side?: "left" | "right"; reveal?: boolean }) {
   const { image } = useCmsImages();
   const reduced = useReducedMotion();
-  return <motion.figure className="about-image-frame group" initial={reduced ? false : { opacity: 0, clipPath: side === "right" ? "inset(0 100% 0 0)" : "inset(0 0 0 100%)" }} whileInView={{ opacity: 1, clipPath: "inset(0 0 0 0)" }} viewport={{ once: true, amount: .18 }} transition={{ duration: .9, ease: [0.22, 1, 0.36, 1] }}>
+  return <motion.figure className="about-image-frame group" initial={reduced || !reveal ? false : { opacity: 0, clipPath: side === "right" ? "inset(0 100% 0 0)" : "inset(0 0 0 100%)" }} whileInView={{ opacity: 1, clipPath: "inset(0 0 0 0)" }} viewport={{ once: true, amount: .18 }} transition={{ duration: .9, ease: [0.22, 1, 0.36, 1] }}>
     <img src={image(src)} alt={alt} loading="lazy" width="1200" height="900" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.025]" />
     <figcaption className="absolute bottom-5 left-5 bg-[#171c21]/88 px-4 py-2 text-xs font-bold uppercase text-white backdrop-blur-sm">{label}</figcaption>
     <span className="about-corner about-corner-top" aria-hidden="true" /><span className="about-corner about-corner-bottom" aria-hidden="true" />
@@ -117,7 +117,24 @@ export default function About() {
 
     <section className="section-band bg-white"><div className="container-wide grid items-center gap-10 lg:grid-cols-2 lg:gap-16"><Reveal direction="left"><p className="eyebrow text-accent">Built Around Safety</p><h2 className="section-title mt-3">Practical Protection for Active Sites</h2><p className="mt-5 leading-8 text-muted-foreground">AM Building Solutions develops and supplies practical construction safety solutions for active sites, including construction safety net systems, safety catch nets, fall arrest safety nets, debris safety nets, edge protection systems and temporary works support.</p><p className="mt-4 leading-8 text-muted-foreground">AMBS supports contractors looking for a safety net in Dubai or across the UAE with project-specific review, installation guidance and a clear path toward an EN 1263 safety net arrangement where applicable.</p></Reveal><ImageFrame src={aboutImages.aboutTeamImage} alt="AM Building Solutions construction safety solutions" label="AMBS project support" /></div></section>
 
-    <section className="section-band bg-[#f3f4f4]"><div className="container-wide grid items-center gap-10 lg:grid-cols-2 lg:gap-16"><div className="relative grid gap-4 sm:grid-cols-[1fr_.42fr] lg:grid-cols-1"><ImageFrame src={aboutImages.edgeProtectionImage} alt="Temporary edge protection system for construction site" label="Edge protection UAE" side="left" /><figure className="relative hidden aspect-[4/3] overflow-hidden rounded-md border border-border sm:block lg:absolute lg:-bottom-8 lg:-right-4 lg:h-36 lg:w-48 lg:shadow-xl"><img src={image(aboutImages.safetyNetImage)} alt="Safety net installation for construction site" loading="lazy" className="h-full w-full object-cover"/><figcaption className="absolute bottom-0 left-0 bg-[#171c21]/90 px-3 py-2 text-[10px] font-bold uppercase text-white">Safety net UAE</figcaption></figure></div><Reveal direction="right"><p className="eyebrow text-accent">Developed Through Site Experience</p><h2 className="section-title mt-3">Engineering Knowledge Meets Product Development</h2><p className="mt-5 leading-8 text-muted-foreground">Our solutions are shaped by real site requirements, fabrication knowledge, engineering coordination and continuous product improvement. Temporary edge protection systems, construction edge protection and EN 13374 edge protection require the complete system and fixing interface to be reviewed, not only an individual component.</p><div className="mt-7 flex flex-wrap gap-2">{["Safety Nets","Edge Protection","Temporary Works","Fall Prevention","Site Protection"].map((label) => <span key={label} className="keyword-chip">{label}</span>)}</div></Reveal></div></section>
+    <section className="about-development-section section-band">
+      <div className="container-wide grid max-w-[1500px] items-center gap-10 lg:grid-cols-[minmax(0,1.18fr)_minmax(0,.82fr)] lg:gap-16">
+        <div className="about-development-media relative min-w-0">
+          <ImageFrame src={aboutImages.edgeProtectionImage} alt="Temporary edge protection system for construction site" label="Edge protection UAE" side="left" reveal={false} />
+          <figure className="about-development-inset hidden overflow-hidden sm:block">
+            <img src={image(aboutImages.safetyNetImage)} alt="Safety net installation for construction site" loading="lazy" className="h-full w-full object-cover" />
+            <figcaption className="absolute bottom-0 left-0 bg-[#171c21]/90 px-3 py-2 text-[10px] font-bold uppercase text-white">Safety net UAE</figcaption>
+          </figure>
+        </div>
+        <Reveal direction="right" className="about-development-copy">
+          <p className="eyebrow text-accent">Developed Through Site Experience</p>
+          <h2 className="section-title mt-4">Engineering Knowledge Meets Product Development</h2>
+          <div className="about-development-rule mt-6" aria-hidden="true" />
+          <p className="mt-6 text-lg leading-8 text-muted-foreground">Our solutions are shaped by real site requirements, fabrication knowledge, engineering coordination and continuous product improvement. Temporary edge protection systems, construction edge protection and EN 13374 edge protection require the complete system and fixing interface to be reviewed, not only an individual component.</p>
+          <div className="mt-8 flex flex-wrap gap-2">{["Safety Nets","Edge Protection","Temporary Works","Fall Prevention","Site Protection"].map((label) => <span key={label} className="keyword-chip">{label}</span>)}</div>
+        </Reveal>
+      </div>
+    </section>
 
     <ScrollStory />
 
