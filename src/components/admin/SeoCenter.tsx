@@ -26,6 +26,7 @@ import {
 import { AiSuggestionsPanel } from "@/components/admin/AiSuggestionsPanel";
 import { CanonicalHealth } from "@/components/admin/CanonicalHealth";
 import { SeoOperations } from "@/components/admin/SeoOperations";
+import { CompetitorComparison } from "@/components/admin/CompetitorComparison";
 
 const labels = {
   technical: "Technical SEO",
@@ -433,6 +434,7 @@ export function SeoCenter({ user }: { user: CmsAdminUser }) {
       )}
       <CanonicalHealth />
       <SeoOperations />
+      <CompetitorComparison />
       <AiSuggestionsPanel issues={current?.issues || []} user={user} />
     </section>
   );

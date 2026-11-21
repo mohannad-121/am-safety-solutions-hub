@@ -4,14 +4,15 @@ import path from "node:path";
 import { chromium } from "playwright";
 import { preview } from "vite";
 
-if (process.env.VERCEL) {
-  console.log("Skipping browser prerender on Vercel; local release builds validate every sitemap route.");
-  process.exit(0);
-}
-
 const rootDir = path.resolve(process.cwd());
 const distDir = path.join(rootDir, "dist");
 const sitemapPath = path.join(distDir, "sitemap.xml");
+const configuredSiteUrl = process.env.VITE_PUBLIC_SITE_URL || "https://am-safety-solutions-hub.vercel.app";
+const publicSiteUrl = (configuredSiteUrl === "https://www.ambs.ae" ? "https://am-safety-solutions-hub.vercel.app" : configuredSiteUrl).replace(/\/$/, "");
+const sitemap = fs.readFileSync(sitemapPath, "utf8").replace(/https:\/\/www\.ambs\.ae/g, publicSiteUrl);
+fs.writeFileSync(sitemapPath, sitemap);
+const robotsPath = path.join(distDir, "robots.txt");
+fs.writeFileSync(robotsPath, fs.readFileSync(robotsPath, "utf8").replace(/https:\/\/www\.ambs\.ae/g, publicSiteUrl));
 const host = "127.0.0.1";
 const port = await new Promise((resolve, reject) => {
   const probe = net.createServer();

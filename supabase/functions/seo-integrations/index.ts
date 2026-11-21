@@ -23,7 +23,10 @@ async function authenticateAdmin(request: Request): Promise<AdminContext> {
 }
 
 function approvedOrigin(requested?: string) {
-  const configured = Deno.env.get("PUBLIC_SITE_URL") || "";
+  const configuredValue = Deno.env.get("PUBLIC_SITE_URL") || "https://am-safety-solutions-hub.vercel.app";
+  const configured = configuredValue === "https://www.ambs.ae"
+    ? "https://am-safety-solutions-hub.vercel.app"
+    : configuredValue;
   if (!configured) throw new Error("PUBLIC_SITE_URL is not configured on the server.");
   const approved = new URL(configured);
   if (approved.protocol !== "https:" || /^(?:localhost|127\.|0\.0\.0\.0|10\.|192\.168\.|172\.(?:1[6-9]|2\d|3[01])\.|169\.254\.)/i.test(approved.hostname)) {

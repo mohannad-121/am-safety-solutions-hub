@@ -1,6 +1,6 @@
 User-agent: Googlebot
 Allow: /
-Sitemap: https://www.ambs.ae/sitemap.xml
+Sitemap: https://am-safety-solutions-hub.vercel.app/sitemap.xml
 
 User-agent: Bingbot
 Allow: /
