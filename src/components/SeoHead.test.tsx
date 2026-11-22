@@ -1,6 +1,7 @@
 import { render, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { SeoHead } from "./SeoHead";
+import { getPublicSiteUrl } from "@/lib/canonical";
 
 describe("SeoHead", () => {
   afterEach(() => {
@@ -13,8 +14,14 @@ describe("SeoHead", () => {
     expect(document.head.querySelector('meta[name="robots"]')?.getAttribute("content")).toContain("max-image-preview:large");
     expect(document.head.querySelector('meta[name="twitter:title"]')?.getAttribute("content")).toBe("Test Page");
     expect(document.head.querySelector('meta[property="og:locale"]')?.getAttribute("content")).toBe("en_AE");
-    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute("href")).toBe("https://www.ambs.ae/test");
+    expect(document.head.querySelector('link[rel="canonical"]')?.getAttribute("href")).toBe(`${getPublicSiteUrl()}/test`);
     expect(document.head.querySelectorAll('script[data-ambs-schema="true"]')).toHaveLength(2);
+  });
+
+  it("keeps a long page title concise without duplicating the brand", async () => {
+    render(<SeoHead title="Safety Net UAE and Dubai | EN 1263 Safety Nets | AMBS" description="Safety net guidance" path="/safety-net-uae" />);
+    await waitFor(() => expect(document.title.length).toBeLessThanOrEqual(65));
+    expect(document.title).not.toMatch(/AMBS \| AM Building Solutions/);
   });
 
   it("removes canonical and schema from a noindex 404", async () => {
