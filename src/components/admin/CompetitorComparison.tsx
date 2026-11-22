@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { remoteCmsEnabled } from "@/lib/cms";
+import { allEnhancementPrompts, enhancementPrompt, type EnhancementDraft } from "@/lib/seoEnhancementPrompts";
 
 type Page = { topic?: string; url: string; status: number; title: string; h1: string[]; words: number; score: number; issues: string[] };
 type Site = { origin: string; score: number; pages: Page[] };
 type Suggestion = { title: string; reason: string; action: string; ourUrl: string; competitorUrl: string; priority: string };
 type Comparison = { id: string; checkedAt: string; ours: Site; competitor: Site; matchedTopics?: string[]; differences: Array<{ label: string; ourValue: number; competitorValue: number; unit: string; leader: string }>; winner: "ours" | "competitor" | "tie" | "inconclusive"; scope: string; ai: { status: string; summary?: string; error?: string; suggestions: Suggestion[] } };
-type EnhancementDraft = { id: string; pageUrl: string; priority: string; title: string; heading: string; paragraph: string; placement: string; reason: string; competitorUrl: string };
 
 export function CompetitorComparison() {
   const [url, setUrl] = useState("");
@@ -15,6 +15,7 @@ export function CompetitorComparison() {
   const [running, setRunning] = useState(false);
   const [enhancing, setEnhancing] = useState(false);
   const [drafts, setDrafts] = useState<EnhancementDraft[]>([]);
+  const [copyNotice, setCopyNotice] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -23,6 +24,19 @@ export function CompetitorComparison() {
       if (data?.[0]) setResult({ ...(data[0].result as unknown as Omit<Comparison, "id">), id: data[0].id });
     });
   }, []);
+
+  useEffect(() => {
+    if (!remoteCmsEnabled || !result?.id) return;
+    let active = true;
+    void supabase.from("seo_suggestions").select("id,page_url,suggested_value,priority").eq("issue_type", `competitor_enhancement:${result.id}`).order("created_at").then(({ data, error: loadError }) => {
+      if (!active || loadError) return;
+      setDrafts((data || []).flatMap((row) => {
+        try { return [{ id: row.id, pageUrl: row.page_url, priority: row.priority, ...JSON.parse(row.suggested_value || "{}") } as EnhancementDraft]; }
+        catch { return []; }
+      }));
+    });
+    return () => { active = false; };
+  }, [result?.id]);
 
   async function compare(event: React.FormEvent) {
     event.preventDefault();
@@ -37,10 +51,22 @@ export function CompetitorComparison() {
       if (data?.error) throw new Error(data.error);
       setResult(data as Comparison);
       setDrafts([]);
+      setCopyNotice("");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "The comparison failed.");
     } finally {
       setRunning(false);
+    }
+  }
+
+  async function copyPrompt(value: string, label: string) {
+    setError("");
+    setCopyNotice("");
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopyNotice(`${label} copied. Paste it into your next message to me.`);
+    } catch {
+      setError("Clipboard access failed. Open the prompt and copy its text manually.");
     }
   }
 
@@ -69,6 +95,7 @@ export function CompetitorComparison() {
       <Button type="submit" disabled={running}>{running ? "Comparing…" : "Compare SEO"}</Button>
     </form>
     {error && <p role="alert" className="mt-3 rounded bg-red-50 p-3 text-sm text-red-800">{error}</p>}
+    {copyNotice && <p role="status" className="mt-3 rounded bg-emerald-50 p-3 text-sm text-emerald-800">{copyNotice}</p>}
     {result && !result.matchedTopics && <p className="mt-5 rounded bg-amber-50 p-3 text-sm text-amber-900">This earlier comparison used unmatched page samples. Run it again for the corrected topic comparison.</p>}
     {result?.matchedTopics && <div className="mt-6 space-y-5">
       <p className="text-xs text-slate-500">Checked {new Date(result.checkedAt).toLocaleString()} · {result.scope}</p>
@@ -87,7 +114,7 @@ export function CompetitorComparison() {
       {result.ai.status === "failed" && <p className="text-sm text-amber-800">AI suggestions unavailable: {result.ai.error}</p>}
       {result.ai.summary && <p className="text-sm text-slate-700">{result.ai.summary}</p>}
       {!!result.ai.suggestions?.length && <div><div className="flex flex-wrap items-center justify-between gap-3"><div><h4 className="font-semibold">Suggested SEO improvements</h4><p className="text-sm text-slate-600">Use OpenAI to turn these findings into specific content drafts for review.</p></div><Button type="button" onClick={enhance} disabled={enhancing}>{enhancing ? "Drafting improvements…" : "Enhance our SEO"}</Button></div><div className="mt-2 space-y-3">{result.ai.suggestions.map((item, index) => <article key={`${item.title}-${index}`} className="rounded-md border p-3 text-sm"><p className="font-semibold">{item.title} · {item.priority} priority</p><p className="mt-1">{item.reason}</p><p className="mt-1"><strong>Action:</strong> {item.action}</p><p className="mt-2 break-all text-xs text-slate-500">Evidence: <a href={item.ourUrl} target="_blank" rel="noreferrer" className="underline">our page</a> · <a href={item.competitorUrl} target="_blank" rel="noreferrer" className="underline">competitor page</a></p></article>)}</div></div>}
-      {!!drafts.length && <div className="rounded-md border border-blue-200 bg-blue-50 p-4"><h4 className="font-semibold">Enhancement drafts saved for review</h4><p className="mt-1 text-sm text-slate-600">These are proposed additions, not published changes. Check technical claims and fit before using them on the site.</p><div className="mt-3 space-y-3">{drafts.map((draft) => <article key={draft.id} className="rounded-md border bg-white p-4 text-sm"><p className="font-semibold">{draft.title}</p><p className="mt-1 break-all text-xs text-slate-500">{draft.pageUrl}</p><p className="mt-3 font-semibold">{draft.heading}</p><p className="mt-1 leading-6">{draft.paragraph}</p><p className="mt-2 text-slate-600"><strong>Place:</strong> {draft.placement}</p><p className="mt-1 text-slate-600"><strong>Why:</strong> {draft.reason}</p><Button type="button" size="sm" variant="outline" className="mt-3" onClick={() => void navigator.clipboard.writeText(`${draft.heading}\n\n${draft.paragraph}`)}>Copy draft</Button></article>)}</div></div>}
+      {!!drafts.length && <div className="rounded-md border border-blue-200 bg-blue-50 p-4"><div className="flex flex-wrap items-start justify-between gap-3"><div><h4 className="font-semibold">Implementation prompts</h4><p className="mt-1 text-sm text-slate-600">Copy a prompt and send it to me. I’ll verify the claims, make the website change, and check the deployment.</p></div><Button type="button" onClick={() => void copyPrompt(allEnhancementPrompts(drafts), "All prompts")}>Copy all prompts</Button></div><div className="mt-3 space-y-3">{drafts.map((draft) => <article key={draft.id} className="rounded-md border bg-white p-4 text-sm"><p className="font-semibold">{draft.title}</p><p className="mt-1 break-all text-xs text-slate-500">{draft.pageUrl}</p><p className="mt-3 font-semibold">{draft.heading}</p><p className="mt-1 leading-6">{draft.paragraph}</p><p className="mt-2 text-slate-600"><strong>Place:</strong> {draft.placement}</p><p className="mt-1 text-slate-600"><strong>Why:</strong> {draft.reason}</p><div className="mt-3 flex flex-wrap items-center gap-3"><Button type="button" size="sm" variant="outline" onClick={() => void copyPrompt(enhancementPrompt(draft), "Prompt")}>Copy prompt</Button><details className="min-w-0 flex-1"><summary className="cursor-pointer text-sm font-medium text-blue-800">View full prompt</summary><pre className="mt-2 max-h-80 overflow-auto whitespace-pre-wrap break-words rounded-md bg-slate-50 p-3 font-sans text-sm leading-6 text-slate-800">{enhancementPrompt(draft)}</pre></details></div></article>)}</div></div>}
     </div>}
   </section>;
 }
