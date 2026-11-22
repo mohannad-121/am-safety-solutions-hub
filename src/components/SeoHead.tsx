@@ -28,7 +28,10 @@ export function SeoHead({ title, description, path, schema, image = "/assets/ima
   useEffect(() => {
     const canonicalUrl = buildCanonicalUrl(path);
     const imageUrl = buildCanonicalUrl(image);
-    document.title = title.includes("AM Building Solutions") ? title : `${title} | AM Building Solutions`;
+    const cleanTitle = title.replace(/\s*\|\s*AMBS\s*$/i, "").replace(/\s*\|\s*AM Building Solutions\s*$/i, "").trim();
+    const brandedTitle = `${cleanTitle} | AM Building Solutions`;
+    const compactTitle = brandedTitle.length <= 65 ? brandedTitle : cleanTitle;
+    document.title = compactTitle.length <= 65 ? compactTitle : `${compactTitle.slice(0, 66).replace(/\s+\S*$/, "").trim()}`;
     const setMeta = (selector: string, attribute: string, content: string) => {
       let element = document.head.querySelector<HTMLMetaElement>(selector);
       if (!element) {

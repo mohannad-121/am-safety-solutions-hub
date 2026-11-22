@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { createArticleDraft, createWebPageDraft, validateSchemaDraft } from "@/lib/schemaValidation";
+import { getPublicSiteUrl } from "@/lib/canonical";
 
 describe("schema draft safety", () => {
   it("creates a valid WebPage draft aligned to canonical", () => {
     const draft = createWebPageDraft("/About/?utm_source=test", "About", "About AMBS");
     expect(validateSchemaDraft(draft)).toEqual({ valid: true, errors: [] });
-    expect(draft.url).toBe("https://www.ambs.ae/about");
+    expect(draft.url).toBe(`${getPublicSiteUrl()}/about`);
   });
   it("creates Article schema without inventing dates or people", () => {
     const draft = createArticleDraft("/articles/example", "Example", "Description");

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle,
   BarChart3,
@@ -104,6 +104,8 @@ export function SeoCenter({ user }: { user: CmsAdminUser }) {
   const [taskNotice, setTaskNotice] = useState("");
   const [severity, setSeverity] = useState<"all" | SeoIssue["severity"]>("all");
   const current = history[0];
+  const autoRefreshStarted = useRef(false);
+  const auditStale = Boolean(current && Date.now() - new Date(current.createdAt).getTime() > 24 * 60 * 60 * 1000);
   const visibleIssues = useMemo(
     () =>
       (current?.issues || []).filter(
@@ -112,7 +114,7 @@ export function SeoCenter({ user }: { user: CmsAdminUser }) {
     [current, severity],
   );
 
-  const run = async () => {
+  const run = useCallback(async () => {
     setRunning(true);
     setError("");
     try {
@@ -134,7 +136,13 @@ export function SeoCenter({ user }: { user: CmsAdminUser }) {
     } finally {
       setRunning(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (!auditStale || autoRefreshStarted.current) return;
+    autoRefreshStarted.current = true;
+    void run();
+  }, [auditStale, run]);
 
   const exportIssues = () =>
     current &&
@@ -199,6 +207,8 @@ export function SeoCenter({ user }: { user: CmsAdminUser }) {
           {error}
         </div>
       )}
+      {auditStale && !running && <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">This Priority queue uses an older audit. Run SEO Evaluation to check the live pages again.</div>}
+      {auditStale && running && <div className="rounded-md border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">Refreshing the old Priority queue against the live website.</div>}
       {taskNotice && (
         <div className="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
           {taskNotice}

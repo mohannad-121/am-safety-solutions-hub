@@ -309,7 +309,7 @@ export async function runSeoAudit(
       };
       const schemaTypes = parsedSchemas.flatMap(collectSchemaTypes);
       const schemaUrls = parsedSchemas.flatMap(collectSchemaUrls);
-      const articlePage = pathname.startsWith("/articles/") || (pathname.startsWith("/resources/") && !["/resources/technical-library", "/resources/risk-assessment-method-statement"].includes(pathname));
+      const articlePage = pathname.startsWith("/articles/") || ["/what-is-en-1263-safety-net", "/what-is-en-13374-edge-protection"].includes(pathname) || (pathname.startsWith("/resources/") && !["/resources/technical-library", "/resources/risk-assessment-method-statement"].includes(pathname));
 
       if (!title)
         issues.push(
@@ -450,9 +450,9 @@ export async function runSeoAudit(
       } else if (absoluteInternalLinks.length < 3) issues.push(issue(pageUrl, "topicClusters", "suggestion", "Limited topic-cluster connections", `Only ${absoluteInternalLinks.length} internal links were detected.`, "Add editorially relevant links to the pillar, supporting guidance and conversion route."));
       if (!/written by|technical review|reviewed by|content review/i.test(text)) issues.push(issue(pageUrl, "eeat", "suggestion", "Authorship or review signal not visible", "No visible organizational authorship or technical-review signal was detected.", "Add a truthful author/review owner and review policy link without inventing credentials."));
       const helpfulContentEligible = /^\/(?:products|articles|resources|standards|safety|temporary|loading|vertical|work-at-height|what-is|edge-protection|engineering|high-risk|steel-fabrication)/.test(pathname);
-      if (helpfulContentEligible && !/short answer|frequently asked|checklist|what project teams|what you need|required sections|before installation|scope review|applications/i.test(text)) issues.push(issue(pageUrl, "helpfulContent", "suggestion", "Helpful-content structure can improve", "No concise answer, checklist, practical application or FAQ marker was detected.", "Review whether a concise answer and task-focused checks would improve the page."));
+      if (helpfulContentEligible && text.length < 1000 && document.querySelectorAll("main h2").length < 2 && !/short answer|frequently asked|checklist|what project teams|what you need|required sections|before installation|scope review|applications/i.test(text)) issues.push(issue(pageUrl, "helpfulContent", "suggestion", "Helpful-content structure can improve", "The page has limited visible detail and task-focused sections.", "Review whether a concise answer and task-focused checks would improve the page."));
       if (!absoluteInternalLinks.some((href) => /\/quote|\/contact/.test(href))) issues.push(issue(pageUrl, "conversion", "suggestion", "No clear enquiry path detected", "The page has no internal link to quote or contact.", "Add a relevant project enquiry path without weakening technical content."));
-      if (
+      if (pathname !== "/editorial-policy" &&
         !/FAQPage|Product|Article|LocalBusiness|Organization/.test(
           schemaNodes.map((node) => node.textContent).join(" "),
         )

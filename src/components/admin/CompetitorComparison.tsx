@@ -7,11 +7,14 @@ type Page = { topic?: string; url: string; status: number; title: string; h1: st
 type Site = { origin: string; score: number; pages: Page[] };
 type Suggestion = { title: string; reason: string; action: string; ourUrl: string; competitorUrl: string; priority: string };
 type Comparison = { id: string; checkedAt: string; ours: Site; competitor: Site; matchedTopics?: string[]; differences: Array<{ label: string; ourValue: number; competitorValue: number; unit: string; leader: string }>; winner: "ours" | "competitor" | "tie" | "inconclusive"; scope: string; ai: { status: string; summary?: string; error?: string; suggestions: Suggestion[] } };
+type EnhancementDraft = { id: string; pageUrl: string; priority: string; title: string; heading: string; paragraph: string; placement: string; reason: string; competitorUrl: string };
 
 export function CompetitorComparison() {
   const [url, setUrl] = useState("");
   const [result, setResult] = useState<Comparison | null>(null);
   const [running, setRunning] = useState(false);
+  const [enhancing, setEnhancing] = useState(false);
+  const [drafts, setDrafts] = useState<EnhancementDraft[]>([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -33,10 +36,27 @@ export function CompetitorComparison() {
       if (callError) throw callError;
       if (data?.error) throw new Error(data.error);
       setResult(data as Comparison);
+      setDrafts([]);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "The comparison failed.");
     } finally {
       setRunning(false);
+    }
+  }
+
+  async function enhance() {
+    if (!result?.id) return;
+    setError("");
+    setEnhancing(true);
+    try {
+      const { data, error: callError } = await supabase.functions.invoke("seo-compare", { body: { action: "enhance", comparisonId: result.id } });
+      if (callError) throw callError;
+      if (data?.error) throw new Error(data.error);
+      setDrafts((data?.drafts || []) as EnhancementDraft[]);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Enhancement drafts could not be generated.");
+    } finally {
+      setEnhancing(false);
     }
   }
 
@@ -66,7 +86,8 @@ export function CompetitorComparison() {
       {result.ai.status === "key_required" && <p className="text-sm text-amber-800">OpenAI suggestions will appear after OPENAI_API_KEY is added to Supabase Edge Function secrets.</p>}
       {result.ai.status === "failed" && <p className="text-sm text-amber-800">AI suggestions unavailable: {result.ai.error}</p>}
       {result.ai.summary && <p className="text-sm text-slate-700">{result.ai.summary}</p>}
-      {!!result.ai.suggestions?.length && <div><h4 className="font-semibold">Suggested SEO improvements</h4><div className="mt-2 space-y-3">{result.ai.suggestions.map((item, index) => <article key={`${item.title}-${index}`} className="rounded-md border p-3 text-sm"><p className="font-semibold">{item.title} · {item.priority} priority</p><p className="mt-1">{item.reason}</p><p className="mt-1"><strong>Action:</strong> {item.action}</p><p className="mt-2 break-all text-xs text-slate-500">Evidence: <a href={item.ourUrl} target="_blank" rel="noreferrer" className="underline">our page</a> · <a href={item.competitorUrl} target="_blank" rel="noreferrer" className="underline">competitor page</a></p></article>)}</div></div>}
+      {!!result.ai.suggestions?.length && <div><div className="flex flex-wrap items-center justify-between gap-3"><div><h4 className="font-semibold">Suggested SEO improvements</h4><p className="text-sm text-slate-600">Use OpenAI to turn these findings into specific content drafts for review.</p></div><Button type="button" onClick={enhance} disabled={enhancing}>{enhancing ? "Drafting improvements…" : "Enhance our SEO"}</Button></div><div className="mt-2 space-y-3">{result.ai.suggestions.map((item, index) => <article key={`${item.title}-${index}`} className="rounded-md border p-3 text-sm"><p className="font-semibold">{item.title} · {item.priority} priority</p><p className="mt-1">{item.reason}</p><p className="mt-1"><strong>Action:</strong> {item.action}</p><p className="mt-2 break-all text-xs text-slate-500">Evidence: <a href={item.ourUrl} target="_blank" rel="noreferrer" className="underline">our page</a> · <a href={item.competitorUrl} target="_blank" rel="noreferrer" className="underline">competitor page</a></p></article>)}</div></div>}
+      {!!drafts.length && <div className="rounded-md border border-blue-200 bg-blue-50 p-4"><h4 className="font-semibold">Enhancement drafts saved for review</h4><p className="mt-1 text-sm text-slate-600">These are proposed additions, not published changes. Check technical claims and fit before using them on the site.</p><div className="mt-3 space-y-3">{drafts.map((draft) => <article key={draft.id} className="rounded-md border bg-white p-4 text-sm"><p className="font-semibold">{draft.title}</p><p className="mt-1 break-all text-xs text-slate-500">{draft.pageUrl}</p><p className="mt-3 font-semibold">{draft.heading}</p><p className="mt-1 leading-6">{draft.paragraph}</p><p className="mt-2 text-slate-600"><strong>Place:</strong> {draft.placement}</p><p className="mt-1 text-slate-600"><strong>Why:</strong> {draft.reason}</p><Button type="button" size="sm" variant="outline" className="mt-3" onClick={() => void navigator.clipboard.writeText(`${draft.heading}\n\n${draft.paragraph}`)}>Copy draft</Button></article>)}</div></div>}
     </div>}
   </section>;
 }
