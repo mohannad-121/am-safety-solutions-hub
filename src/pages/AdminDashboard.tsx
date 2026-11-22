@@ -40,6 +40,7 @@ import {
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { fetchGa4Report, type Ga4Report } from "@/lib/ga4Reports";
 import { Input } from "@/components/ui/input";
 import { AdminSeo } from "@/components/admin/AdminSeo";
 import { SeoCenter } from "@/components/admin/SeoCenter";
@@ -222,6 +223,21 @@ export default function AdminDashboard() {
   const [content, setContent] = useState<CmsContentRecord[]>([]);
   const [audit, setAudit] = useState<AuditEntry[]>([]);
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [ga4Report, setGa4Report] = useState<Ga4Report | null>(null);
+  const [ga4Loading, setGa4Loading] = useState(false);
+  const [ga4Error, setGa4Error] = useState("");
+
+  useEffect(() => {
+    if (!user?.id || (activeModule !== "Dashboard" && activeModule !== "Website Statistics")) return;
+    let active = true;
+    setGa4Loading(true);
+    void fetchGa4Report().then((report) => {
+      if (active) { setGa4Report(report); setGa4Error(""); }
+    }).catch((error: unknown) => {
+      if (active) { setGa4Report(null); setGa4Error(error instanceof Error ? error.message : "GA4 report could not be loaded."); }
+    }).finally(() => { if (active) setGa4Loading(false); });
+    return () => { active = false; };
+  }, [user?.id, activeModule]);
 
   useEffect(() => {
     let active = true;
@@ -397,6 +413,9 @@ export default function AdminDashboard() {
               images={images}
               content={content}
               leads={leads}
+              ga4={ga4Report}
+              ga4Loading={ga4Loading}
+              ga4Error={ga4Error}
               setModule={openModule}
             />
           )}
@@ -421,7 +440,7 @@ export default function AdminDashboard() {
             <LeadsCenter leads={leads} setLeads={setLeads} />
           )}
           {activeModule === "Website Statistics" && (
-            <StatisticsCenter leads={leads} />
+            <StatisticsCenter leads={leads} ga4={ga4Report} ga4Loading={ga4Loading} ga4Error={ga4Error} />
           )}
           {activeModule === "Users & Roles" && <UsersCenter user={user} />}
           {activeModule === "Audit Logs" && <AuditCenter entries={audit} />}
@@ -443,18 +462,25 @@ function Dashboard({
   images,
   content,
   leads,
+  ga4,
+  ga4Loading,
+  ga4Error,
   setModule,
 }: {
   images: ImageSlot[];
   content: CmsContentRecord[];
   leads: Lead[];
+  ga4: Ga4Report | null;
+  ga4Loading: boolean;
+  ga4Error: string;
   setModule: (module: ModuleName) => void;
 }) {
+  const ga4Value = (value?: number) => ga4 ? Number(value || 0).toLocaleString() : ga4Loading ? "Loading…" : ga4Error ? "Unavailable" : "Connect GA4";
   const stats = [
-    ["Visits today", "Connect GA4", Activity],
-    ["Active users now", "Connect GA4", Gauge],
+    ["Sessions today", ga4Value(ga4?.summary.sessionsToday), Activity],
+    ["Active users (30 min)", ga4Value(ga4?.summary.activeUsers30m), Gauge],
     ["Quote leads", String(leads.length), Users],
-    ["WhatsApp clicks", "Connect GA4", Activity],
+    ["WhatsApp clicks (30 days)", ga4Value(ga4?.summary.whatsappClicks30d), Activity],
     [
       "Missing alt text",
       String(images.filter((image) => !image.altText.trim()).length),
@@ -481,10 +507,7 @@ function Dashboard({
   ];
   return (
     <div className="space-y-6">
-      <Notice>
-        Google Analytics 4 is not connected. Statistics marked "Connect GA4" are
-        setup notices, not fake production data.
-      </Notice>
+      {ga4 ? <Notice tone="green">Google Analytics 4 connected. Figures were refreshed {new Date(ga4.checkedAt).toLocaleString()}.</Notice> : <Notice tone={ga4Error ? "red" : "amber"}>{ga4Loading ? "Loading live Google Analytics 4 data…" : ga4Error || "GA4 reporting is not configured yet. Website visits are still being collected in Google Analytics."}</Notice>}
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
         {stats.map(([label, value, StatIcon]) => (
           <div
@@ -1529,7 +1552,16 @@ function LeadsCenter({
   );
 }
 
-function StatisticsCenter({ leads }: { leads: Lead[] }) {
+function StatisticsCenter({ leads, ga4, ga4Loading, ga4Error }: { leads: Lead[]; ga4: Ga4Report | null; ga4Loading: boolean; ga4Error: string }) {
+  const cards = [
+    ["Active users (30 min)", ga4?.summary.activeUsers30m],
+    ["Users last 7 days", ga4?.summary.users7d],
+    ["Users last 30 days", ga4?.summary.users30d],
+    ["Page views last 30 days", ga4?.summary.pageViews30d],
+    ["Sessions today", ga4?.summary.sessionsToday],
+    ["WhatsApp clicks last 30 days", ga4?.summary.whatsappClicks30d],
+    ["Engagement rate last 30 days", ga4 ? `${Math.round(ga4.summary.engagementRate30d * 100)}%` : undefined],
+  ] as const;
   return (
     <section className="space-y-5">
       <div className="flex flex-wrap justify-between gap-3 rounded-md border bg-white p-5">
@@ -1547,24 +1579,18 @@ function StatisticsCenter({ leads }: { leads: Lead[] }) {
           Export PDF
         </Button>
       </div>
-      <Notice>
-        Connect GA4 Data API using the documented environment variables to show
-        real visits, active users, top pages, traffic sources, countries,
-        devices and engagement. No demo values are presented as production data.
-      </Notice>
+      {ga4 ? <Notice tone="green">Google Analytics 4 connected. Report refreshed {new Date(ga4.checkedAt).toLocaleString()}. Realtime covers the last 30 minutes; other figures use the GA4 property timezone.</Notice> : <Notice tone={ga4Error ? "red" : "amber"}>{ga4Loading ? "Loading live Google Analytics 4 data…" : ga4Error || "GA4 reporting is not configured yet. Add the service account to this GA4 property to show real figures here."}</Notice>}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {[
-          "Active users now",
-          "Users last 7 days",
-          "Users last 30 days",
-          "Page views",
-        ].map((label) => (
+        {cards.map(([label, value]) => (
           <div key={label} className="rounded-md border bg-white p-5">
             <p className="text-sm text-slate-500">{label}</p>
-            <p className="mt-2 font-semibold text-amber-700">Connect GA4</p>
+            <p className={`mt-2 text-2xl font-semibold ${ga4 ? "text-slate-900" : "text-amber-700"}`}>{ga4 ? typeof value === "number" ? value.toLocaleString() : value : ga4Loading ? "Loading…" : ga4Error ? "Unavailable" : "Connect GA4"}</p>
           </div>
         ))}
       </div>
+      {ga4 && <div className="grid gap-5 xl:grid-cols-2">
+        {([ ["Top pages", ga4.topPages], ["Traffic channels", ga4.channels], ["Countries", ga4.countries], ["Devices", ga4.devices] ] as const).map(([title, rows]) => <section key={title} className="rounded-md border bg-white p-5"><h3 className="font-semibold">{title} <span className="text-xs font-normal text-slate-500">· last 30 days</span></h3><div className="mt-3 divide-y text-sm">{rows.length ? rows.map((row) => <div key={row.name} className="flex justify-between gap-4 py-2"><span className="min-w-0 break-all">{row.name}</span><strong>{row.value.toLocaleString()}</strong></div>) : <p className="py-3 text-slate-500">No data in this period.</p>}</div></section>)}
+      </div>}
       <div className="grid gap-6 xl:grid-cols-2">
         <section className="rounded-md border bg-white p-5">
           <h3 className="font-semibold">Lead Conversion</h3>

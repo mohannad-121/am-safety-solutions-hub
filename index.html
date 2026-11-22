@@ -9,6 +9,14 @@
         window.gtag = function () { window.dataLayer.push(arguments); };
         window.gtag("js", new Date());
         window.gtag("config", "G-LZ5PDV0P69");
+        document.addEventListener("click", function (event) {
+          if (location.pathname.startsWith("/admin") || !(event.target instanceof Element)) return;
+          var link = event.target.closest("a[href]");
+          if (!link) return;
+          try {
+            if (/^(?:wa\.me|api\.whatsapp\.com|web\.whatsapp\.com)$/i.test(new URL(link.href).hostname)) window.gtag("event", "whatsapp_click");
+          } catch (_) { /* Ignore invalid links. */ }
+        });
         var googleTag = document.createElement("script");
         googleTag.async = true;
         googleTag.src = "https://www.googletagmanager.com/gtag/js?id=G-LZ5PDV0P69";
