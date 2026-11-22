@@ -2,6 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      // Keep preview, local, and admin activity out of public GA4 reports.
+      if (location.hostname === "am-safety-solutions-hub.vercel.app" && !location.pathname.startsWith("/admin")) {
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function () { window.dataLayer.push(arguments); };
+        window.gtag("js", new Date());
+        window.gtag("config", "G-LZ5PDV0P69");
+        var googleTag = document.createElement("script");
+        googleTag.async = true;
+        googleTag.src = "https://www.googletagmanager.com/gtag/js?id=G-LZ5PDV0P69";
+        document.head.appendChild(googleTag);
+      }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#171c21" />
     <meta name="mobile-web-app-capable" content="yes" />
