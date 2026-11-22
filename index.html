@@ -149,6 +149,8 @@
   if(!loader) return;
 
   // build the letters ("AM" red, "Building" gold, "Solutions" white)
+  // Prerendered pages can already contain these spans; rebuild once per load.
+  brand.replaceChildren();
   var words = [['AM','w1'],['Building','w2'],['Solutions','w3']], n = 0;
   words.forEach(function(w){
     var el = document.createElement('span'); el.className = 'w ' + w[1];
